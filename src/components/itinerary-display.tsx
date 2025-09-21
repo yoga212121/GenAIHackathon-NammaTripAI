@@ -36,7 +36,9 @@ import {
   Wallet,
   Sparkles,
   CloudSun,
+  Ticket,
 } from "lucide-react";
+import { BookingDialog } from "./booking-dialog";
 
 type ItineraryDisplayProps = {
   params: GenerateItineraryInput;
@@ -190,7 +192,7 @@ export default function ItineraryDisplay({
                 <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
                   <div className="p-1 h-full">
                     <Card className="flex flex-col h-full overflow-hidden">
-                       <CardHeader className="p-0 relative h-48 w-full">
+                       <CardHeader className="p-0 relative h-40 w-full">
                         <Image
                           src={place.imageUrl || `https://picsum.photos/seed/${place.name}/600/400`}
                           alt={place.name}
@@ -205,6 +207,12 @@ export default function ItineraryDisplay({
                        <CardContent className="p-3 flex-grow">
                           <p className="text-sm text-muted-foreground">{place.description}</p>
                       </CardContent>
+                      <CardFooter className="p-2 pt-0">
+                         <BookingDialog 
+                            placeName={place.name} 
+                            trigger={<Button variant="secondary" className="w-full"><Ticket className="mr-2"/>Book Now</Button>} 
+                        />
+                      </CardFooter>
                     </Card>
                   </div>
                 </CarouselItem>
@@ -230,9 +238,15 @@ export default function ItineraryDisplay({
                 <div className="font-headline text-xl font-bold text-primary">{displayTime}</div>
             </div>
         </div>
-        <Button variant="outline" onClick={onBack}>
-          <ArrowLeft className="mr-2 h-4 w-4" /> Start Over
-        </Button>
+        <div className="flex gap-2">
+            <Button variant="outline" onClick={onBack}>
+                <ArrowLeft className="mr-2 h-4 w-4" /> Start Over
+            </Button>
+             <BookingDialog 
+                placeName="Entire Trip" 
+                trigger={<Button><Ticket className="mr-2"/>Book Entire Trip</Button>} 
+            />
+        </div>
       </CardFooter>
     </Card>
   );
