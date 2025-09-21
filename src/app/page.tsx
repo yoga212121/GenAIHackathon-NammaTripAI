@@ -44,10 +44,12 @@ export default function Home() {
       case "itinerary":
         if (itineraryParams) {
           return (
-            <ItineraryDisplay
-              params={itineraryParams}
-              onBack={handleReset}
-            />
+            <div className="w-full flex justify-center">
+              <ItineraryDisplay
+                params={itineraryParams}
+                onBack={handleReset}
+              />
+            </div>
           );
         }
         return null;
@@ -72,10 +74,14 @@ export default function Home() {
                 <TabsTrigger value="planner">✈️ Plan My Trip</TabsTrigger>
               </TabsList>
               <TabsContent value="quiz">
-                <Quiz onQuizComplete={handlePlannerSubmit} />
+                <div className="flex justify-center">
+                  <Quiz onQuizComplete={handlePlannerSubmit} />
+                </div>
               </TabsContent>
               <TabsContent value="planner">
-                <TripPlanner onPlannerSubmit={handlePlannerSubmit} />
+                <div className="flex justify-center">
+                  <TripPlanner onPlannerSubmit={handlePlannerSubmit} />
+                </div>
               </TabsContent>
             </Tabs>
           </div>
@@ -86,7 +92,7 @@ export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center bg-background/80">
       <Header />
-      <div className="container mx-auto flex-grow p-4 md:p-8 flex items-center justify-center">
+      <div className="container mx-auto flex-grow p-4 md:p-8 flex items-center">
         {renderContent()}
       </div>
       <footer className="w-full p-4 text-center text-muted-foreground text-sm">
