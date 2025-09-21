@@ -113,9 +113,9 @@ export function Quiz({ onQuizComplete }: QuizProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [quizState, setQuizState] = useState<QuizState>('questions');
   const [location, setLocation] = useState("");
-  const [budget, setBudget] = useState([20000, 80000]);
+  const [budget, setBudget] = useState([1000, 3000]);
   const [currency, setCurrency] = useState("INR");
-  const [duration, setDuration] = useState(7);
+  const [duration, setDuration] = useState(2);
   const { toast } = useToast();
   const locationInputRef = useRef<HTMLInputElement>(null);
 

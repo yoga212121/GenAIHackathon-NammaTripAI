@@ -50,8 +50,8 @@ export function TripPlanner({ onPlannerSubmit }: TripPlannerProps) {
     resolver: zodResolver(formSchema),
     defaultValues: {
       destinations: "",
-      budget: [2000, 8000],
-      duration: 1,
+      budget: [1000, 3000],
+      duration: 2,
       interests: "museums, parks, food",
       currency: "INR",
     },
