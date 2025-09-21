@@ -38,11 +38,19 @@ const GenerateItineraryInputSchema = z.object({
 });
 export type GenerateItineraryInput = z.infer<typeof GenerateItineraryInputSchema>;
 
+const ItineraryPlaceSchema = z.object({
+  name: z.string().describe('The name of the place or attraction.'),
+  description: z.string().describe('A short, one-sentence description of the place and the activity there.'),
+  imageUrl: z.string().optional().describe('URL for an image of the place. To be populated later.'),
+});
+
 const GenerateItineraryOutputSchema = z.object({
-  itinerary: z.string().describe('The generated travel itinerary.'),
+  itinerary: z.string().describe('The generated travel itinerary as a detailed, day-by-day plan. Important: Place names MUST be wrapped in double asterisks, like **Place Name**.'),
   totalPrice: z.number().describe('The estimated total price of the itinerary.'),
   totalTime: z.string().describe('The estimated total time of the itinerary.'),
+  places: z.array(ItineraryPlaceSchema).describe('An array of key places included in the itinerary. This should correspond to the places wrapped in asterisks in the itinerary text.'),
 });
+
 export type GenerateItineraryOutput = z.infer<
   typeof GenerateItineraryOutputSchema
 >;
@@ -94,13 +102,12 @@ User's pre-selected places: {{{selections}}}
 {{/if}}
 
 Instructions:
-1.  Analyze the user's interests (e.g., 'hiking, museums, food').
-2.  For each interest, think like a local expert. Create a specific, insightful search query for the 'findPlacesForItinerary' tool. Instead of generic queries, search for "iconic", "famous", or "highly-rated" places.
-3.  Make several tool calls to find a variety of iconic places that cover the user's different interests (e.g., one for landmarks, one for food, one for parks).
-4.  Use the diverse list of iconic places returned by the tool to construct a detailed day-by-day itinerary.
-5.  The itinerary should include estimated prices and times for each activity. Ensure the total price is within the user's budget.
-6.  All prices in the generated itinerary MUST be in the user's specified currency: {{{currency}}}.
-7.  Return the final itinerary, the calculated total price, and the total time.
+1.  **Analyze and Search**: Analyze the user's interests (e.g., 'hiking, museums, food'). For each interest, create a specific, insightful search query for the 'findPlacesForItinerary' tool. Instead of generic queries, search for "iconic", "famous", or "highly-rated" places. Make several tool calls to find a variety of iconic places that cover the user's different interests (e.g., one for landmarks, one for food, one for parks).
+2.  **Construct Itinerary**: Use the diverse list of iconic places returned by the tool to construct a detailed day-by-day itinerary.
+3.  **Format Itinerary**: In the text-based 'itinerary', you MUST wrap the full name of every place, park, restaurant, or attraction in double asterisks. For example: "Start your day at **Dodda Basavana Gudi (The Bull Temple)**." or "Enjoy lunch at **Vidyarthi Bhavan**.".
+4.  **Extract Places**: Create a corresponding list of these places for the 'places' array in the output. Each item in the array should have the place's name and a brief description.
+5.  **Add Details**: The itinerary should include estimated prices and times for each activity. Ensure the total price is within the user's budget. All prices in the generated itinerary MUST be in the user's specified currency: {{{currency}}}.
+6.  **Return Output**: Return the final itinerary text, the calculated total price, total time, and the structured array of places.
 
 The response must be a valid JSON object matching the output schema.`,
 });

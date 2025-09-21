@@ -20,6 +20,7 @@ import {
   type AdjustItineraryForBudgetInput,
   type AdjustItineraryForBudgetOutput,
 } from "@/ai/flows/budget-aware-itinerary-adjustments";
+import { getPlaceImageUrls } from "@/ai/flows/placesService";
 
 export async function runQuiz(
   input: PersonalizedDestinationQuizInput
@@ -60,9 +61,20 @@ export async function getItinerary(
 ): Promise<GenerateItineraryOutput> {
   try {
     const result = await generateItinerary(input);
-    if (!result || !result.itinerary) {
+    if (!result || !result.itinerary || !result.places || result.places.length === 0) {
         throw new Error("AI returned an empty or invalid itinerary.");
     }
+
+    // Fetch images for all places in parallel
+    const placeNames = result.places.map(p => p.name);
+    const imageUrls = await getPlaceImageUrls(placeNames);
+
+    // Add the fetched image URLs to the places array
+    result.places = result.places.map((place, index) => ({
+      ...place,
+      imageUrl: imageUrls[index] || `https://picsum.photos/seed/${place.name.replace(/\s/g, '')}/600/400`,
+    }));
+
     return result;
   } catch (error) {
     console.error("Error in getItinerary:", error);

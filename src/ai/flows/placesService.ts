@@ -102,3 +102,17 @@ export async function getPlaceImageUrl(placeQuery: string, maxWidth: number = 60
     return fallbackImageUrl; // Return a fallback image in case of an API error
   }
 }
+
+
+/**
+ * Takes an array of place names and returns an array of corresponding image URLs.
+ * @param placeNames An array of strings, where each string is the name of a place.
+ * @returns A promise that resolves to an array of image URL strings.
+ */
+export async function getPlaceImageUrls(placeNames: string[]): Promise<string[]> {
+    // Use Promise.all to fetch all images concurrently
+    const imageUrls = await Promise.all(
+        placeNames.map(name => getPlaceImageUrl(name))
+    );
+    return imageUrls;
+}

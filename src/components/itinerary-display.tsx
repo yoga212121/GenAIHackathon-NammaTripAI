@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { getItinerary, getAdjustedItinerary } from "@/lib/actions";
 import { useToast } from "@/hooks/use-toast";
 import type {
@@ -20,6 +21,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 import {
   ArrowLeft,
   Loader2,
@@ -105,9 +113,7 @@ export default function ItineraryDisplay({
           <Skeleton className="h-4 w-1/2" />
         </CardHeader>
         <CardContent className="space-y-4">
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-5/6" />
+          <Skeleton className="h-48 w-full" />
           <Skeleton className="h-20 w-full mt-4" />
         </CardContent>
       </Card>
@@ -173,6 +179,38 @@ export default function ItineraryDisplay({
                    {adjustedItinerary.message}
                 </AlertDescription>
             </Alert>
+        )}
+
+        {itinerary.places && itinerary.places.length > 0 && (
+          <Carousel className="w-full mb-6">
+            <CarouselContent>
+              {itinerary.places.map((place, index) => (
+                <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
+                  <div className="p-1 h-full">
+                    <Card className="flex flex-col h-full overflow-hidden">
+                       <CardHeader className="p-0 relative h-48 w-full">
+                        <Image
+                          src={place.imageUrl || `https://picsum.photos/seed/${place.name}/600/400`}
+                          alt={place.name}
+                          fill
+                          className="object-cover"
+                          data-ai-hint={place.name}
+                        />
+                         <div className="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-black/80 to-transparent">
+                            <h3 className="font-headline text-lg font-semibold text-white">{place.name}</h3>
+                        </div>
+                      </CardHeader>
+                       <CardContent className="p-3 flex-grow">
+                          <p className="text-sm text-muted-foreground">{place.description}</p>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="ml-12" />
+            <CarouselNext className="mr-12"/>
+          </Carousel>
         )}
 
         <div className="prose prose-sm md:prose-base dark:prose-invert max-w-none whitespace-pre-wrap rounded-md border bg-muted/50 p-4">
