@@ -46,6 +46,7 @@ export function DestinationSuggestions({
       budget: destination.estimatedPrice || 2000,
       timeline: `${destination.estimatedDuration || 7} days`,
       interests: "as per suggestion",
+      currency: "USD", // Default currency, will be refined in next step.
     };
     onPlanTrip(destination.destination || destination.suggestedDestination, plannerInput);
   };
@@ -119,7 +120,7 @@ export function DestinationSuggestions({
                     </div>
                     <CardFooter className="p-4 pt-0 flex flex-col items-start gap-4">
                         <div className="text-sm text-muted-foreground w-full">
-                            <div className="flex justify-between"><span>Est. Price:</span> <span className="font-semibold text-foreground">${dest.estimatedPrice.toLocaleString()}</span></div>
+                            <div className="flex justify-between"><span>Est. Price:</span> <span className="font-semibold text-foreground">{new Intl.NumberFormat(undefined, { style: 'currency', currency: dest.currency || 'USD', minimumFractionDigits: 0 }).format(dest.estimatedPrice)}</span></div>
                             <div className="flex justify-between"><span>Est. Duration:</span> <span className="font-semibold text-foreground">{dest.estimatedDuration} days</span></div>
                         </div>
                         <Button className="w-full" onClick={() => handlePlanTripClick(dest)}>Plan this trip</Button>

@@ -21,11 +21,13 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const formSchema = z.object({
-  budget: z.coerce.number().min(100, "Budget must be at least $100."),
+  budget: z.coerce.number().min(1, "Budget must be greater than 0."),
   duration: z.coerce.number().min(1, "Duration must be at least 1 day."),
   interests: z.string().min(3, "Please list at least one interest."),
+  currency: z.string().min(3).max(3),
 });
 
 type TripPlannerProps = {
@@ -42,6 +44,7 @@ export function TripPlanner({ onPlannerSubmit }: TripPlannerProps) {
       budget: 1000,
       duration: 7,
       interests: "beaches, hiking, food",
+      currency: "USD",
     },
   });
 
@@ -87,19 +90,44 @@ export function TripPlanner({ onPlannerSubmit }: TripPlannerProps) {
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="budget"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Your Budget (USD)</FormLabel>
-                  <FormControl>
-                    <Input type="number" placeholder="e.g., 1500" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <FormItem>
+              <FormLabel>Your Budget</FormLabel>
+              <div className="flex gap-2">
+                 <FormField
+                    control={form.control}
+                    name="currency"
+                    render={({ field }) => (
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="w-[120px]">
+                            <SelectValue placeholder="Currency" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="USD">USD</SelectItem>
+                          <SelectItem value="EUR">EUR</SelectItem>
+                          <SelectItem value="GBP">GBP</SelectItem>
+                          <SelectItem value="JPY">JPY</SelectItem>
+                          <SelectItem value="CAD">CAD</SelectItem>
+                          <SelectItem value="AUD">AUD</SelectItem>
+                          <SelectItem value="INR">INR</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                <FormField
+                  control={form.control}
+                  name="budget"
+                  render={({ field }) => (
+                     <FormControl>
+                        <Input type="number" placeholder="e.g., 1500" {...field} />
+                      </FormControl>
+                  )}
+                />
+              </div>
+               <FormMessage>{form.formState.errors.budget?.message}</FormMessage>
+            </FormItem>
+
             <FormField
               control={form.control}
               name="duration"

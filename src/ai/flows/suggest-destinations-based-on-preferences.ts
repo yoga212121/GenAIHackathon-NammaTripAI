@@ -12,11 +12,12 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const SuggestDestinationsInputSchema = z.object({
-  budget: z.number().describe('The user\u2019s budget for the trip in USD.'),
+  budget: z.number().describe('The user’s budget for the trip.'),
   duration: z.number().describe('The duration of the trip in days.'),
   interests: z
     .array(z.string())
-    .describe('A list of the user\u2019s interests and preferences.'),
+    .describe('A list of the user’s interests and preferences.'),
+  currency: z.string().optional().describe('The currency of the budget (e.g., USD, EUR, INR).'),
 });
 
 export type SuggestDestinationsInput = z.infer<
@@ -29,6 +30,7 @@ const SuggestDestinationsOutputSchema = z.array(z.object({
   imageUrl: z.string().describe('URL of an image of the destination.'),
   estimatedPrice: z.number().describe('Estimated total price for the trip to this destination.'),
   estimatedDuration: z.number().describe('Estimated duration of stay in days.'),
+  currency: z.string().optional().describe('The currency of the estimated price.'),
 }));
 
 export type SuggestDestinationsOutput = z.infer<
@@ -41,6 +43,23 @@ export async function suggestDestinationsBasedOnPreferences(
   return suggestDestinationsBasedOnPreferencesFlow(input);
 }
 
+const prompt = ai.definePrompt({
+  name: 'suggestDestinationsPrompt',
+  input: {schema: SuggestDestinationsInputSchema},
+  output: {schema: SuggestDestinationsOutputSchema},
+  prompt: `Suggest three travel destinations based on the user's preferences.
+
+Budget: {{{budget}}} {{{currency}}}
+Duration: {{{duration}}} days
+Interests: {{{interests}}}
+
+Provide a list of destinations with a short description, an image URL for each, and an estimated price and duration.
+The estimated price should be in the requested currency: {{{currency}}}.
+Important: For each destination object in the output array, you MUST include a "currency" field with the value "{{{currency}}}".
+Format the output as a valid JSON array of objects matching the output schema.
+`,
+});
+
 const suggestDestinationsBasedOnPreferencesFlow = ai.defineFlow(
   {
     name: 'suggestDestinationsBasedOnPreferencesFlow',
@@ -48,22 +67,7 @@ const suggestDestinationsBasedOnPreferencesFlow = ai.defineFlow(
     outputSchema: SuggestDestinationsOutputSchema,
   },
   async (input) => {
-    const prompt = `Suggest destinations based on the user's preferences.
-
-  Budget: ${input.budget}
-  Duration: ${input.duration} days
-  Interests: ${input.interests.join(', ')}
-
-  Provide a list of destinations with a short description, image URL, estimated price, and estimated duration for each.
-  Format the output as a JSON array of objects matching the schema. Be concise and provide the best options.
-  `;
-    const {output} = await ai.generate({
-      prompt: prompt,
-      output: {
-        schema: SuggestDestinationsOutputSchema,
-      },
-    });
-
+    const {output} = await prompt(input);
     if (!output) {
       throw new Error('AI did not return a valid output.');
     }
