@@ -10,7 +10,7 @@
     {
       "id": "quiz-scenery-beach",
       "description": "A pristine sandy beach with turquoise water.",
-      "imageUrl": "https://picsum.photos/seed/beach/600/400",
+      "imageUrl": "https://picsum.photos/seed/beaches/600/400",
       "imageHint": "beach ocean"
     },
     {
@@ -22,7 +22,7 @@
     {
       "id": "quiz-scenery-countryside",
       "description": "Rolling green hills in the countryside.",
-      "imageUrl": "https://picsum.photos/seed/countryside/600/400",
+      "imageUrl": "https://picsum.photos/seed/greenhills/600/400",
       "imageHint": "countryside hills"
     },
     {
@@ -46,37 +46,37 @@
     {
       "id": "quiz-activity-food",
       "description": "A vibrant and colorful spread of food on a table.",
-      "imageUrl": "https://picsum.photos/seed/vibrantfood/600/400",
+      "imageUrl": "https://picsum.photos/seed/foodspread/600/400",
       "imageHint": "delicious food"
     },
     {
       "id": "quiz-companion-alone",
       "description": "A lone traveler looking at a map.",
-      "imageUrl": "https://picsum.photos/seed/solotraveler/600/400",
+      "imageUrl": "https://picsum.photos/seed/solotravel/600/400",
       "imageHint": "solo traveler"
     },
     {
       "id": "quiz-companion-partner",
       "description": "A couple enjoying a scenic view together.",
-      "imageUrl": "https://picsum.photos/seed/coupleview/600/400",
+      "imageUrl": "https://picsum.photos/seed/coupletravel/600/400",
       "imageHint": "couple travel"
     },
     {
       "id": "quiz-companion-family",
       "description": "A family laughing and walking on a beach.",
-      "imageUrl": "https://picsum.photos/seed/familybeach/600/400",
+      "imageUrl": "https://picsum.photos/seed/familytravel/600/400",
       "imageHint": "family vacation"
     },
     {
       "id": "quiz-companion-friends",
       "description": "A group of friends taking a selfie on a city street.",
-      "imageUrl": "https://picsum.photos/seed/friendsselfie/600/400",
+      "imageUrl": "https://picsum.photos/seed/friendstravel/600/400",
       "imageHint": "friends travel"
     },
     {
       "id": "quiz-pace-moderate",
       "description": "A person casually strolling through a European-style city street.",
-      "imageUrl": "https://picsum.photos/seed/citystroll/600/400",
+      "imageUrl": "https://picsum.photos/seed/citywalk/600/400",
       "imageHint": "city walking"
     },
     {
