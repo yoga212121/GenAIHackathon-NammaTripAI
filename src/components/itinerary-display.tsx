@@ -53,6 +53,15 @@ const WeatherDisplay = () => (
   </div>
 );
 
+// A simple parser to convert markdown bold to HTML strong tags
+const parseMarkdown = (text: string) => {
+    const boldPattern = /\*\*(.*?)\*\*/g;
+    const html = text
+        .replace(boldPattern, '<strong>$1</strong>')
+        .replace(/\n/g, '<br />');
+    return { __html: html };
+}
+
 export default function ItineraryDisplay({
   params,
   onBack,
@@ -223,9 +232,10 @@ export default function ItineraryDisplay({
           </Carousel>
         )}
 
-        <div className="prose prose-sm md:prose-base dark:prose-invert max-w-none whitespace-pre-wrap rounded-md border bg-muted/50 p-4">
-            {displayItinerary}
-        </div>
+        <div 
+            className="prose prose-sm md:prose-base dark:prose-invert max-w-none rounded-md border bg-muted/50 p-4"
+            dangerouslySetInnerHTML={parseMarkdown(displayItinerary)}
+        />
       </CardContent>
       <CardFooter className="flex flex-col md:flex-row justify-between items-center gap-4">
         <div className="grid grid-cols-2 gap-4 text-center">
