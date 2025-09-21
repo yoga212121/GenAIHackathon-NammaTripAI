@@ -12,6 +12,8 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import { getPlaceImageUrl } from './placesService';
+
 
 const PersonalizedDestinationQuizInputSchema = z.object({
   question1: z
@@ -57,6 +59,7 @@ const PersonalizedDestinationQuizOutputSchema = z.object({
       "Explanation of why the destination matches the user's quiz answers."
     ),
     imageHint: z.string().describe('One or two keywords for a relevant placeholder image, e.g., "botanical garden".'),
+    imageUrl: z.string().describe('URL of an image of the destination. This will be populated by a separate service.'),
 });
 
 export type PersonalizedDestinationQuizOutput = z.infer<
@@ -73,7 +76,11 @@ const prompt = ai.definePrompt(
   {
     name: 'personalizedDestinationQuizPrompt',
     input: { schema: PersonalizedDestinationQuizInputSchema },
-    output: { schema: PersonalizedDestinationQuizOutputSchema },
+    output: { schema: z.object({
+        suggestedDestination: PersonalizedDestinationQuizOutputSchema.shape.suggestedDestination,
+        reasoning: PersonalizedDestinationQuizOutputSchema.shape.reasoning,
+        imageHint: PersonalizedDestinationQuizOutputSchema.shape.imageHint,
+    }) },
     prompt: `Based on the user's answers to the following questions, suggest a travel destination that matches their interests and personality.
 
 Questions:
@@ -112,6 +119,13 @@ const personalizedDestinationQuizFlow = ai.defineFlow(
     if (!output) {
       throw new Error('AI did not return a valid output.');
     }
-    return output;
+    
+    // Enrich the result with a real image URL
+    const imageUrl = await getPlaceImageUrl(output.imageHint);
+
+    return {
+      ...output,
+      imageUrl: imageUrl,
+    };
   }
 );

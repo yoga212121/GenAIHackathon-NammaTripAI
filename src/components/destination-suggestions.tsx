@@ -68,7 +68,7 @@ export function DestinationSuggestions({
             {quizResult.suggestedDestination}
           </h3>
           <Image
-            src={`https://picsum.photos/seed/${imageSeed}/800/400`}
+            src={quizResult.imageUrl || `https://picsum.photos/seed/${imageSeed}/800/400`}
             alt={quizResult.suggestedDestination}
             width={800}
             height={400}
