@@ -10,11 +10,8 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-
-import { ai } from '@/ai/genkit';
-import { defineFlow, definePrompt } from 'genkit/next';
-import { z } from 'genkit/zod';
 import { getPlaceImageUrl } from './placesService';
+
 const SuggestDestinationsInputSchema = z.object({
   destinations: z.string().describe('The destination(s) the user is interested in.'),
   budget: z.number().describe('The user’s budget for the trip.'),
@@ -32,15 +29,8 @@ export type SuggestDestinationsInput = z.infer<
 const SuggestDestinationsOutputSchema = z.array(z.object({
   destination: z.string().describe('The name of the suggested destination.'),
   description: z.string().describe('A short description of the destination.'),
-  imageUrl: z.string().describe('URL of an image of the destination. Use a placeholder from picsum.photos.'),
-  imageHint: z.string().describe('One or two keywords for a relevant placeholder image, e.g., "botanical garden".'),
-  imageUrl: z
-    .string(),
-  imageHint: z
-    .string()
-    .describe(
-      'One or two keywords for a relevant image search, e.g., "Eiffel Tower" or "Bali riceterrace".'
-    ),
+  imageUrl: z.string().describe('URL of an image of the destination. This will be populated by a separate service.'),
+  imageHint: z.string().describe('One or two keywords for a relevant image search, e.g., "Eiffel Tower" or "Bali riceterrace".'),
   estimatedPrice: z.number().describe('Estimated total price for the trip to this destination.'),
   estimatedDuration: z.number().describe('Estimated duration of stay in days.'),
   currency: z.string().optional().describe('The currency of the estimated price.'),
@@ -57,10 +47,7 @@ export async function suggestDestinationsBasedOnPreferences(
 }
 
 const prompt = ai.definePrompt({
-const prompt = definePrompt({
   name: 'suggestDestinationsPrompt',
-  input: {schema: SuggestDestinationsInputSchema},
-  output: {schema: SuggestDestinationsOutputSchema},
   input: { schema: SuggestDestinationsInputSchema },
   output: { schema: SuggestDestinationsOutputSchema },
   prompt: `Suggest three travel destinations based on the user's preferences.
@@ -70,8 +57,6 @@ Budget: {{{budget}}} {{{currency}}}
 Duration: {{{duration}}} days
 Interests: {{{interests}}}
 
-Provide a list of destinations with a short description, an image URL for each, an estimated price and duration, and a relevant imageHint for each destination.
-The image URL should be a placeholder from picsum.photos, in the format https://picsum.photos/seed/your-seed/600/400.
 Provide a list of destinations with a short description, an estimated price and duration, and a relevant imageHint for each destination.
 The imageUrl field can be an empty string, as it will be populated by a different service.
 The imageHint should be one or two keywords that accurately describe the destination, for example: "Eiffel Tower" or "Bali riceterrace".
@@ -82,22 +67,17 @@ Format the output as a valid JSON array of objects matching the output schema.
 });
 
 const suggestDestinationsBasedOnPreferencesFlow = ai.defineFlow(
-const suggestDestinationsBasedOnPreferencesFlow = defineFlow(
   {
     name: 'suggestDestinationsBasedOnPreferencesFlow',
     inputSchema: SuggestDestinationsInputSchema,
     outputSchema: SuggestDestinationsOutputSchema,
   },
   async (input) => {
-    const {output} = await prompt(input);
-    if (!output) {
-    const llmResponse = await prompt(input);
-    const suggestions = llmResponse.output;
+    const {output: suggestions} = await prompt(input);
 
     if (!suggestions) {
       throw new Error('AI did not return a valid output.');
     }
-    return output;
 
     // Enrich each suggestion with a real image URL from the Google Places API
     const enrichedSuggestions = await Promise.all(
