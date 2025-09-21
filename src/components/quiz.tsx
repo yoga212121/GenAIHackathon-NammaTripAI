@@ -70,10 +70,10 @@ const quizQuestions: QuizQuestion[] = [
     id: "question4",
     title: "What is your ideal travel companion?",
     options: [
-        { value: "Alone", label: "Alone", imageId: "quiz-activity-adventure" },
-        { value: "Partner", label: "Partner", imageId: "quiz-activity-relaxation" },
-        { value: "Family", label: "Family", imageId: "quiz-scenery-countryside" },
-        { value: "Friends", label: "Friends", imageId: "quiz-scenery-city" },
+        { value: "Alone", label: "Alone", imageId: "quiz-companion-alone" },
+        { value: "Partner", label: "Partner", imageId: "quiz-companion-partner" },
+        { value: "Family", label: "Family", imageId: "quiz-companion-family" },
+        { value: "Friends", label: "Friends", imageId: "quiz-companion-friends" },
     ],
   },
 ];

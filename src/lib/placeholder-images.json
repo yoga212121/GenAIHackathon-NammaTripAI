@@ -1,3 +1,4 @@
+
 {
   "placeholderImages": [
     {
@@ -46,7 +47,31 @@
       "id": "quiz-activity-food",
       "description": "A vibrant and colorful spread of food on a table.",
       "imageUrl": "https://picsum.photos/seed/108/600/400",
-      "imageHint": "food market"
+      "imageHint": "delicious food"
+    },
+    {
+      "id": "quiz-companion-alone",
+      "description": "A lone traveler looking at a map.",
+      "imageUrl": "https://picsum.photos/seed/109/600/400",
+      "imageHint": "solo traveler"
+    },
+    {
+      "id": "quiz-companion-partner",
+      "description": "A couple enjoying a scenic view together.",
+      "imageUrl": "https://picsum.photos/seed/110/600/400",
+      "imageHint": "couple travel"
+    },
+    {
+      "id": "quiz-companion-family",
+      "description": "A family laughing and walking on a beach.",
+      "imageUrl": "https://picsum.photos/seed/111/600/400",
+      "imageHint": "family vacation"
+    },
+    {
+      "id": "quiz-companion-friends",
+      "description": "A group of friends taking a selfie on a city street.",
+      "imageUrl": "https://picsum.photos/seed/112/600/400",
+      "imageHint": "friends travel"
     },
     {
       "id": "dest-paris",
