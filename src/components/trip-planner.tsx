@@ -93,6 +93,15 @@ export function TripPlanner({ onPlannerSubmit }: TripPlannerProps) {
             <FormItem>
               <FormLabel>Your Budget</FormLabel>
               <div className="flex gap-2">
+                <FormField
+                  control={form.control}
+                  name="budget"
+                  render={({ field }) => (
+                     <FormControl>
+                        <Input type="number" placeholder="e.g., 1500" {...field} />
+                      </FormControl>
+                  )}
+                />
                  <FormField
                     control={form.control}
                     name="currency"
@@ -115,15 +124,6 @@ export function TripPlanner({ onPlannerSubmit }: TripPlannerProps) {
                       </Select>
                     )}
                   />
-                <FormField
-                  control={form.control}
-                  name="budget"
-                  render={({ field }) => (
-                     <FormControl>
-                        <Input type="number" placeholder="e.g., 1500" {...field} />
-                      </FormControl>
-                  )}
-                />
               </div>
                <FormMessage>{form.formState.errors.budget?.message}</FormMessage>
             </FormItem>

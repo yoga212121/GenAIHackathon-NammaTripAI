@@ -58,6 +58,15 @@ export function RefineTrip({ destination, onSubmit, onBack }: RefineTripProps) {
                 <div className="flex gap-2">
                   <FormField
                     control={form.control}
+                    name="budget"
+                    render={({ field }) => (
+                      <FormControl>
+                        <Input type="number" placeholder="e.g., 2000" {...field} />
+                      </FormControl>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
                     name="currency"
                     render={({ field }) => (
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
@@ -73,17 +82,9 @@ export function RefineTrip({ destination, onSubmit, onBack }: RefineTripProps) {
                           <SelectItem value="JPY">JPY</SelectItem>
                           <SelectItem value="CAD">CAD</SelectItem>
                           <SelectItem value="AUD">AUD</SelectItem>
+                          <SelectItem value="INR">INR</SelectItem>
                         </SelectContent>
                       </Select>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="budget"
-                    render={({ field }) => (
-                      <FormControl>
-                        <Input type="number" placeholder="e.g., 2000" {...field} />
-                      </FormControl>
                     )}
                   />
                 </div>
