@@ -90,7 +90,7 @@ export default function Home() {
         {renderContent()}
       </div>
       <footer className="w-full p-4 text-center text-muted-foreground text-sm">
-        <p>Powered by VoyagerAI</p>
+        <p>Powered by NammaTripAI</p>
       </footer>
     </main>
   );
