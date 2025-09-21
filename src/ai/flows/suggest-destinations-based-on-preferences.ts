@@ -41,29 +41,32 @@ export async function suggestDestinationsBasedOnPreferences(
   return suggestDestinationsBasedOnPreferencesFlow(input);
 }
 
-const suggestDestinationsPrompt = ai.definePrompt({
-  name: 'suggestDestinationsPrompt',
-  input: {schema: SuggestDestinationsInputSchema},
-  output: {schema: SuggestDestinationsOutputSchema},
-  prompt: `Suggest destinations based on the user's preferences.
-
-  Budget: {{{budget}}}
-  Duration: {{{duration}}} days
-  Interests: {{#each interests}}{{{this}}}{{#unless @last}}, {{/unless}}{{/each}}
-
-  Provide a list of destinations with a short description, image URL, estimated price, and estimated duration for each.
-  Format the output as a JSON array of objects matching the schema. Be concise and provide the best options.
-  `,
-});
-
 const suggestDestinationsBasedOnPreferencesFlow = ai.defineFlow(
   {
     name: 'suggestDestinationsBasedOnPreferencesFlow',
     inputSchema: SuggestDestinationsInputSchema,
     outputSchema: SuggestDestinationsOutputSchema,
   },
-  async input => {
-    const {output} = await suggestDestinationsPrompt(input);
-    return output!;
+  async (input) => {
+    const prompt = `Suggest destinations based on the user's preferences.
+
+  Budget: ${input.budget}
+  Duration: ${input.duration} days
+  Interests: ${input.interests.join(', ')}
+
+  Provide a list of destinations with a short description, image URL, estimated price, and estimated duration for each.
+  Format the output as a JSON array of objects matching the schema. Be concise and provide the best options.
+  `;
+    const {output} = await ai.generate({
+      prompt: prompt,
+      output: {
+        schema: SuggestDestinationsOutputSchema,
+      },
+    });
+
+    if (!output) {
+      throw new Error('AI did not return a valid output.');
+    }
+    return output;
   }
 );

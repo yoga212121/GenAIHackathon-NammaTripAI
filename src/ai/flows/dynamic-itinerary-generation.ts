@@ -40,33 +40,31 @@ export async function generateItinerary(input: GenerateItineraryInput): Promise<
   return generateItineraryFlow(input);
 }
 
-const prompt = ai.definePrompt({
-  name: 'generateItineraryPrompt',
-  input: {schema: GenerateItineraryInputSchema},
-  output: {schema: GenerateItineraryOutputSchema},
-  prompt: `You are a travel planning expert. Given the following information, create a personalized travel itinerary.
-
-Destinations: {{{destinations}}}
-Budget: {{{budget}}}
-Timeline: {{{timeline}}}
-Interests: {{{interests}}}
-{{#if selections}}
-Selections: {{{selections}}}
-{{/if}}
-
-Create a detailed itinerary, including estimated prices and times for each activity. Return the itinerary, total price, and total time.
-The response should be in a valid JSON format.
-`,
-});
-
 const generateItineraryFlow = ai.defineFlow(
   {
     name: 'generateItineraryFlow',
     inputSchema: GenerateItineraryInputSchema,
     outputSchema: GenerateItineraryOutputSchema,
   },
-  async input => {
-    const {output} = await prompt(input);
+  async (input) => {
+    const prompt = `You are a travel planning expert. Given the following information, create a personalized travel itinerary.
+
+Destinations: ${input.destinations}
+Budget: ${input.budget}
+Timeline: ${input.timeline}
+Interests: ${input.interests}
+${input.selections ? `Selections: ${input.selections}` : ''}
+
+Create a detailed itinerary, including estimated prices and times for each activity. Return the itinerary, total price, and total time.
+The response should be in a valid JSON format.
+`;
+    const {output} = await ai.generate({
+      prompt: prompt,
+      output: {
+        schema: GenerateItineraryOutputSchema,
+      },
+    });
+
     if (!output) {
       throw new Error('AI did not return a valid itinerary output.');
     }

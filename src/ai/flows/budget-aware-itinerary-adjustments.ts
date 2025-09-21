@@ -28,34 +28,37 @@ export async function adjustItineraryForBudget(input: AdjustItineraryForBudgetIn
   return adjustItineraryForBudgetFlow(input);
 }
 
-const prompt = ai.definePrompt({
-  name: 'adjustItineraryForBudgetPrompt',
-  input: {schema: AdjustItineraryForBudgetInputSchema},
-  output: {schema: AdjustItineraryForBudgetOutputSchema},
-  prompt: `You are a trip planning expert helping users stay within their budget.
-
-You are given the current itinerary, the user's budget, and the current total cost.
-
-If the current cost exceeds the budget, suggest alternative, cheaper options for activities, accommodations, or destinations.
-
-Itinerary: {{{itinerary}}}
-Budget: {{{budget}}}
-Current Cost: {{{currentCost}}}
-
-Output an adjusted itinerary with revised costs that fit within the budget.
-Explain what changes were made and why.
-Ensure the revisedCost is properly calculated and accurately reflects the adjustedItinerary. Return a message summarizing changes made.
-`,
-});
-
 const adjustItineraryForBudgetFlow = ai.defineFlow(
   {
     name: 'adjustItineraryForBudgetFlow',
     inputSchema: AdjustItineraryForBudgetInputSchema,
     outputSchema: AdjustItineraryForBudgetOutputSchema,
   },
-  async input => {
-    const {output} = await prompt(input);
-    return output!;
+  async (input) => {
+    const prompt = `You are a trip planning expert helping users stay within their budget.
+
+You are given the current itinerary, the user's budget, and the current total cost.
+
+If the current cost exceeds the budget, suggest alternative, cheaper options for activities, accommodations, or destinations.
+
+Itinerary: ${input.itinerary}
+Budget: ${input.budget}
+Current Cost: ${input.currentCost}
+
+Output an adjusted itinerary with revised costs that fit within the budget.
+Explain what changes were made and why.
+Ensure the revisedCost is properly calculated and accurately reflects the adjustedItinerary. Return a message summarizing changes made.
+`;
+    const {output} = await ai.generate({
+      prompt: prompt,
+      output: {
+        schema: AdjustItineraryForBudgetOutputSchema,
+      },
+    });
+
+    if (!output) {
+      throw new Error('AI did not return a valid output.');
+    }
+    return output;
   }
 );

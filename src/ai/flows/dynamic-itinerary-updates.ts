@@ -1,4 +1,3 @@
-// This is a server-side file.
 'use server';
 
 /**
@@ -34,31 +33,34 @@ export async function updateItinerary(input: UpdateItineraryInput): Promise<Upda
   return updateItineraryFlow(input);
 }
 
-const updateItineraryPrompt = ai.definePrompt({
-  name: 'updateItineraryPrompt',
-  input: {schema: UpdateItineraryInputSchema},
-  output: {schema: UpdateItineraryOutputSchema},
-  prompt: `You are a trip planning expert.
-
-Based on the user's selected places, budget, and available time, generate an optimized itinerary.
-
-Selected Places: {{{selectedPlaces}}}
-Budget: {{{budget}}}
-Available Time: {{{availableTime}}} days
-
-Provide an updated itinerary, the total estimated price, and total time to complete the itinerary.
-Be concise.
-`,
-});
-
 const updateItineraryFlow = ai.defineFlow(
   {
     name: 'updateItineraryFlow',
     inputSchema: UpdateItineraryInputSchema,
     outputSchema: UpdateItineraryOutputSchema,
   },
-  async input => {
-    const {output} = await updateItineraryPrompt(input);
-    return output!;
+  async (input) => {
+    const prompt = `You are a trip planning expert.
+
+Based on the user's selected places, budget, and available time, generate an optimized itinerary.
+
+Selected Places: ${input.selectedPlaces.join(', ')}
+Budget: ${input.budget}
+Available Time: ${input.availableTime} days
+
+Provide an updated itinerary, the total estimated price, and total time to complete the itinerary.
+Be concise.
+`;
+    const {output} = await ai.generate({
+      prompt: prompt,
+      output: {
+        schema: UpdateItineraryOutputSchema,
+      },
+    });
+
+    if (!output) {
+      throw new Error('AI did not return a valid output.');
+    }
+    return output;
   }
 );

@@ -63,23 +63,6 @@ export async function personalizedDestinationQuiz(
   return personalizedDestinationQuizFlow(input);
 }
 
-const quizPrompt = ai.definePrompt({
-  name: 'personalizedDestinationQuizPrompt',
-  input: {schema: PersonalizedDestinationQuizInputSchema},
-  output: {schema: PersonalizedDestinationQuizOutputSchema},
-  prompt: `Based on the user's answers to the following questions, suggest a travel destination that matches their interests and personality.
-
-Questions:
-1. What type of scenery appeals to you most? {{{question1}}}
-2. What is your preferred travel pace? {{{question2}}}
-3. What kind of activities do you enjoy on vacation? {{{question3}}}
-4. What is your ideal travel companion? {{{question4}}}
-
-Consider these preferences and suggest ONE destination. Explain your reasoning in detail, connecting the user's answers to the suggested destination.
-Return a valid JSON object matching the output schema.
-`,
-});
-
 const personalizedDestinationQuizFlow = ai.defineFlow(
   {
     name: 'personalizedDestinationQuizFlow',
@@ -87,7 +70,24 @@ const personalizedDestinationQuizFlow = ai.defineFlow(
     outputSchema: PersonalizedDestinationQuizOutputSchema,
   },
   async (input) => {
-    const {output} = await quizPrompt(input);
+    const prompt = `Based on the user's answers to the following questions, suggest a travel destination that matches their interests and personality.
+
+Questions:
+1. What type of scenery appeals to you most? ${input.question1}
+2. What is your preferred travel pace? ${input.question2}
+3. What kind of activities do you enjoy on vacation? ${input.question3}
+4. What is your ideal travel companion? ${input.question4}
+
+Consider these preferences and suggest ONE destination. Explain your reasoning in detail, connecting the user's answers to the suggested destination.
+Return a valid JSON object matching the output schema.
+`;
+    const {output} = await ai.generate({
+      prompt: prompt,
+      output: {
+        schema: PersonalizedDestinationQuizOutputSchema,
+      },
+    });
+
     if (!output) {
       throw new Error('AI did not return a valid output.');
     }
