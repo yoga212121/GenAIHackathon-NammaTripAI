@@ -61,6 +61,7 @@ export default function Home() {
   const handleRefineTrip = (details: {
     budget: number;
     duration: number;
+    currency: string;
   }) => {
     if (!selectedDestination) return;
     const params: GenerateItineraryInput = {
@@ -68,6 +69,7 @@ export default function Home() {
       budget: details.budget,
       timeline: `${details.duration} days`,
       interests: initialInterests,
+      currency: details.currency,
     };
     setItineraryParams(params);
     setView("itinerary");

@@ -27,6 +27,7 @@ const GenerateItineraryInputSchema = z.object({
     .string()
     .optional()
     .describe('A list of user selected places.'),
+  currency: z.string().optional().describe('The currency of the budget (e.g., USD, EUR).'),
 });
 export type GenerateItineraryInput = z.infer<typeof GenerateItineraryInputSchema>;
 
@@ -41,6 +42,27 @@ export async function generateItinerary(input: GenerateItineraryInput): Promise<
   return generateItineraryFlow(input);
 }
 
+const prompt = ai.definePrompt(
+  {
+    name: 'generateItineraryPrompt',
+    input: { schema: GenerateItineraryInputSchema },
+    output: { schema: GenerateItineraryOutputSchema },
+    prompt: `You are a travel planning expert. Given the following information, create a personalized travel itinerary.
+
+Destinations: {{{destinations}}}
+Budget: {{{budget}}} {{{currency}}}
+Timeline: {{{timeline}}}
+Interests: {{{interests}}}
+{{#if selections}}
+Selections: {{{selections}}}
+{{/if}}
+
+Create a detailed itinerary, including estimated prices and times for each activity. The prices should be in {{{currency}}}.
+Return the itinerary, total price, and total time.
+The response should be in a valid JSON format.`,
+  },
+);
+
 const generateItineraryFlow = ai.defineFlow(
   {
     name: 'generateItineraryFlow',
@@ -48,22 +70,7 @@ const generateItineraryFlow = ai.defineFlow(
     outputSchema: GenerateItineraryOutputSchema,
   },
   async (input) => {
-    const {output} = await ai.generate({
-      prompt: `You are a travel planning expert. Given the following information, create a personalized travel itinerary.
-
-Destinations: ${input.destinations}
-Budget: ${input.budget}
-Timeline: ${input.timeline}
-Interests: ${input.interests}
-${input.selections ? `Selections: ${input.selections}` : ''}
-
-Create a detailed itinerary, including estimated prices and times for each activity. Return the itinerary, total price, and total time.
-The response should be in a valid JSON format.
-`,
-      output: {
-        schema: GenerateItineraryOutputSchema,
-      },
-    });
+    const {output} = await prompt(input);
 
     if (!output) {
       throw new Error('AI did not return a valid itinerary output.');
