@@ -27,7 +27,7 @@ const formSchema = z.object({
   destinations: z.string().min(3, "Please enter at least one destination."),
   budget: z.array(z.number()).length(2, "Budget range is required."),
   duration: z.coerce.number().min(1, "Duration must be at least 1 day."),
-  interests: z.string().min(3, "Please list at least one interest."),
+  interests: z.string().min(3, "Please list at least one interest or specific place."),
   currency: z.string().min(3).max(3),
 });
 
@@ -66,6 +66,7 @@ export function TripPlanner({ onPlannerSubmit }: TripPlannerProps) {
         budget: values.budget[1], // Use max budget for the itinerary plan
         timeline: `${values.duration} days`,
         interests: values.interests,
+        selections: values.interests, // Pass interests as selections as well
         currency: values.currency,
       };
 
@@ -133,8 +134,8 @@ export function TripPlanner({ onPlannerSubmit }: TripPlannerProps) {
                         <FormField
                             control={form.control}
                             name="currency"
-                            render={({ field }) => (
-                            <Select onValuechange={field.onChange} defaultValue={field.value}>
+                            render={({ field: currencyField }) => (
+                            <Select onValueChange={currencyField.onChange} defaultValue={currencyField.value}>
                                 <FormControl>
                                 <SelectTrigger className="w-[100px]">
                                     <SelectValue placeholder="Currency" />
@@ -187,15 +188,15 @@ export function TripPlanner({ onPlannerSubmit }: TripPlannerProps) {
               name="interests"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Interests</FormLabel>
+                  <FormLabel>Interests or Specific Places</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="e.g., hiking, museums, beaches"
+                      placeholder="e.g., hiking, museums, or even specific places like 'Cubbon Park'"
                       {...field}
                     />
                   </FormControl>
                   <FormDescription>
-                    Separate interests with commas.
+                    Separate items with commas.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
