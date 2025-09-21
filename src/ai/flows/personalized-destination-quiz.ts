@@ -57,6 +57,12 @@ export type PersonalizedDestinationQuizOutput = z.infer<
   typeof PersonalizedDestinationQuizOutputSchema
 >;
 
+export async function personalizedDestinationQuiz(
+  input: PersonalizedDestinationQuizInput
+): Promise<PersonalizedDestinationQuizOutput> {
+  return personalizedDestinationQuizFlow(input);
+}
+
 const quizPrompt = ai.definePrompt({
   name: 'personalizedDestinationQuizPrompt',
   input: {schema: PersonalizedDestinationQuizInputSchema},
@@ -69,7 +75,9 @@ Questions:
 3. What kind of activities do you enjoy on vacation? {{{question3}}}
 4. What is your ideal travel companion? {{{question4}}}
 
-Consider these preferences and suggest ONE destination. Explain your reasoning in detail, connecting the user's answers to the suggested destination.`,
+Consider these preferences and suggest ONE destination. Explain your reasoning in detail, connecting the user's answers to the suggested destination.
+Return a valid JSON object matching the output schema.
+`,
 });
 
 const personalizedDestinationQuizFlow = ai.defineFlow(
@@ -86,9 +94,3 @@ const personalizedDestinationQuizFlow = ai.defineFlow(
     return output;
   }
 );
-
-export async function personalizedDestinationQuiz(
-  input: PersonalizedDestinationQuizInput
-): Promise<PersonalizedDestinationQuizOutput> {
-  return personalizedDestinationQuizFlow(input);
-}
