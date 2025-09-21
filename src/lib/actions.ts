@@ -2,30 +2,27 @@
 
 import {
   personalizedDestinationQuiz,
-  type PersonalizedDestinationQuizInput,
-  type PersonalizedDestinationQuizOutput,
 } from "@/ai/flows/personalized-destination-quiz";
 import {
   suggestDestinationsBasedOnPreferences,
-  type SuggestDestinationsInput,
-  type SuggestDestinationsOutput,
 } from "@/ai/flows/suggest-destinations-based-on-preferences";
 import {
   generateItinerary,
-  type GenerateItineraryInput,
-  type GenerateItineraryOutput,
 } from "@/ai/flows/dynamic-itinerary-generation";
 import {
   adjustItineraryForBudget,
-  type AdjustItineraryForBudgetInput,
-  type AdjustItineraryForBudgetOutput,
 } from "@/ai/flows/budget-aware-itinerary-adjustments";
 import { getPlaceImageUrls } from "@/ai/flows/placesService";
+import type {
+  PersonalizedDestinationQuizInput,
+  SuggestDestinationsInput,
+  SuggestDestinationsOutput,
+  GenerateItineraryInput,
+  GenerateItineraryOutput,
+  AdjustItineraryForBudgetInput,
+  AdjustItineraryForBudgetOutput
+} from "./types";
 
-// Wrapper type to combine quiz answers with destination preferences for the action
-type QuizAndPrefs = SuggestDestinationsInput & {
-  quizAnswers: PersonalizedDestinationQuizInput;
-};
 
 export async function runQuiz(
   quizAnswers: PersonalizedDestinationQuizInput,
@@ -77,26 +74,35 @@ export async function getDestinations(
   }
 }
 
+async function enrichItineraryWithImages(itinerary: GenerateItineraryOutput): Promise<GenerateItineraryOutput> {
+    if (!itinerary.places || itinerary.places.length === 0) {
+        return itinerary;
+    }
+     // Fetch images for all places in parallel
+    const placeNames = itinerary.places.map(p => p.name);
+    const imageUrls = await getPlaceImageUrls(placeNames);
+
+    // Add the fetched image URLs to the places array
+    itinerary.places = itinerary.places.map((place, index) => ({
+      ...place,
+      imageUrl: imageUrls[index] || `https://picsum.photos/seed/${place.name.replace(/\s/g, '')}/600/400`,
+    }));
+
+    return itinerary;
+}
+
+
 export async function getItinerary(
   input: GenerateItineraryInput
 ): Promise<GenerateItineraryOutput> {
   try {
     const result = await generateItinerary(input);
-    if (!result || !result.itinerary || !result.places || result.places.length === 0) {
+    if (!result || !result.itinerary) {
         throw new Error("AI returned an empty or invalid itinerary.");
     }
 
-    // Fetch images for all places in parallel
-    const placeNames = result.places.map(p => p.name);
-    const imageUrls = await getPlaceImageUrls(placeNames);
+    return await enrichItineraryWithImages(result);
 
-    // Add the fetched image URLs to the places array
-    result.places = result.places.map((place, index) => ({
-      ...place,
-      imageUrl: imageUrls[index] || `https://picsum.photos/seed/${place.name.replace(/\s/g, '')}/600/400`,
-    }));
-
-    return result;
   } catch (error) {
     console.error("Error in getItinerary:", error);
     if (error instanceof Error) {
@@ -111,7 +117,12 @@ export async function getAdjustedItinerary(
 ): Promise<AdjustItineraryForBudgetOutput> {
   try {
     const result = await adjustItineraryForBudget(input);
-    return result;
+     if (!result || !result.itinerary) {
+        throw new Error("AI returned an empty or invalid adjusted itinerary.");
+    }
+    
+    return await enrichItineraryWithImages(result);
+
   } catch (error)
  {
     console.error("Error in getAdjustedItinerary:", error);

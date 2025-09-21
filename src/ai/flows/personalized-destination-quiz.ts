@@ -13,54 +13,10 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 import { getPlaceImageUrl, searchPlaces } from './placesService';
+import type { PersonalizedDestinationQuizInput, PersonalizedDestinationQuizOutput } from '@/lib/types';
+import { PersonalizedDestinationQuizInputSchema, PersonalizedDestinationQuizOutputSchema } from '@/lib/types';
 
 
-const PersonalizedDestinationQuizInputSchema = z.object({
-  question1: z
-    .string()
-    .describe(
-      'What type of scenery appeals to you most? (Mountains, Beach, City, Countryside)'
-    ),
-  question2: z
-    .string()    .describe(
-      'What is your preferred travel pace? (Relaxed, Moderate, Fast-paced)'
-    ),
-  question3: z
-    .string()
-    .describe(
-      'What kind of activities do you enjoy on vacation? (Adventure, Culture, Relaxation, Food)'
-    ),
-  question4: z
-    .string()
-    .describe(
-      'What is your ideal travel companion? (Alone, Partner, Family, Friends)'
-    ),
-  question5: z
-    .string()
-    .describe(
-      'What is your desired travel scope? (Local, Domestic, International)'
-    ),
-  userLocation: z.string().optional().describe("The user's location (country, region, or city) to help with local/domestic suggestions.")
-});
-
-export type PersonalizedDestinationQuizInput = z.infer<
-  typeof PersonalizedDestinationQuizInputSchema
->;
-
-const SingleDestinationSchema = z.object({
-  destination: z.string().describe("A destination that matches the user's interests and personality based on their quiz answers."),
-  reasoning: z.string().describe("Explanation of why the destination matches the user's quiz answers."),
-  imageHint: z.string().describe('One or two keywords for a relevant placeholder image, e.g., "Lalbagh Garden" or "Eiffel Tower".'),
-  imageUrl: z.string().describe('URL of an image of the destination. This will be populated by a separate service.'),
-  rating: z.union([z.number(), z.string()]).describe('The rating of the destination, from 1 to 5, or N/A if not available.'),
-});
-
-const PersonalizedDestinationQuizOutputSchema = z.array(SingleDestinationSchema);
-
-
-export type PersonalizedDestinationQuizOutput = z.infer<
-  typeof PersonalizedDestinationQuizOutputSchema
->;
 
 export async function personalizedDestinationQuiz(
   input: PersonalizedDestinationQuizInput

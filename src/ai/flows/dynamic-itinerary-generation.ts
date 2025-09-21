@@ -13,48 +13,9 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 import {searchPlaces} from './placesService';
+import type { GenerateItineraryInput, GenerateItineraryOutput } from '@/lib/types';
+import { GenerateItineraryInputSchema, GenerateItineraryOutputSchema } from '@/lib/types';
 
-const GenerateItineraryInputSchema = z.object({
-  destinations: z
-    .string()
-    .describe('The destination the user wants to visit (e.g., city, region).'),
-  budget: z.number().describe('The user specified budget for the trip.'),
-  timeline: z
-    .string()
-    .optional()
-    .describe('The preferred trip duration, e.g., 3 days, 1 week.'),
-  interests: z
-    .string()
-    .describe(
-      'The interests of the user for this trip, e.g., hiking, museums, food.'
-    ),
-  selections: z
-    .string()
-    .optional()
-    .describe('A list of user selected places.'),
-  currency: z
-    .string()
-    .optional()
-    .describe('The currency of the budget (e.g., USD, EUR).'),
-});
-export type GenerateItineraryInput = z.infer<typeof GenerateItineraryInputSchema>;
-
-const ItineraryPlaceSchema = z.object({
-  name: z.string().describe('The name of the place or attraction.'),
-  description: z.string().describe('A short, one-sentence description of the place and the activity there.'),
-  imageUrl: z.string().optional().describe('URL for an image of the place. To be populated later.'),
-});
-
-const GenerateItineraryOutputSchema = z.object({
-  itinerary: z.string().describe('The generated travel itinerary as a detailed, day-by-day plan. Important: Place names MUST be wrapped in double asterisks, like **Place Name**.'),
-  totalPrice: z.number().describe('The estimated total price of the itinerary.'),
-  totalTime: z.string().describe('The estimated total time of the itinerary.'),
-  places: z.array(ItineraryPlaceSchema).describe('An array of key places included in the itinerary. This should correspond to the places wrapped in asterisks in the itinerary text.'),
-});
-
-export type GenerateItineraryOutput = z.infer<
-  typeof GenerateItineraryOutputSchema
->;
 
 export async function generateItinerary(
   input: GenerateItineraryInput

@@ -10,24 +10,9 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import type { UpdateItineraryInput, UpdateItineraryOutput } from '@/lib/types';
+import { UpdateItineraryInputSchema, UpdateItineraryOutputSchema } from '@/lib/types';
 
-const UpdateItineraryInputSchema = z.object({
-  selectedPlaces: z
-    .array(z.string())
-    .describe('List of place names selected by the user.'),
-  budget: z.number().describe('The user specified budget for the trip.'),
-  availableTime: z
-    .string()
-    .describe('The time the user has available in days.'),
-});
-export type UpdateItineraryInput = z.infer<typeof UpdateItineraryInputSchema>;
-
-const UpdateItineraryOutputSchema = z.object({
-  updatedItinerary: z.string().describe('A string containing the updated itinerary details, factoring in user selections, budget, and time constraints.'),
-  totalPrice: z.number().describe('The total estimated price of the updated itinerary.'),
-  totalTime: z.string().describe('Total time to complete the itinerary.'),
-});
-export type UpdateItineraryOutput = z.infer<typeof UpdateItineraryOutputSchema>;
 
 export async function updateItinerary(input: UpdateItineraryInput): Promise<UpdateItineraryOutput> {
   return updateItineraryFlow(input);

@@ -11,36 +11,9 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 import { getPlaceImageUrl, searchPlaces } from './placesService';
+import type { SuggestDestinationsInput, SuggestDestinationsOutput } from '@/lib/types';
+import { SuggestDestinationsInputSchema, SuggestDestinationsOutputSchema } from '@/lib/types';
 
-const SuggestDestinationsInputSchema = z.object({
-  destinations: z.string().describe('The destination(s) the user is interested in.'),
-  budgetMin: z.number().describe('The minimum budget for the trip.'),
-  budgetMax: z.number().describe('The maximum budget for the trip.'),
-  duration: z.number().describe('The duration of the trip in days.'),
-  interests: z
-    .array(z.string())
-    .describe('A list of the user’s interests and preferences.'),
-  currency: z.string().optional().describe('The currency of the budget (e.g., USD, EUR, INR).'),
-});
-
-export type SuggestDestinationsInput = z.infer<
-  typeof SuggestDestinationsInputSchema
->;
-
-const SuggestDestinationsOutputSchema = z.array(z.object({
-  destination: z.string().describe('The name of the suggested destination.'),
-  description: z.string().describe('A short description of the destination.'),
-  imageUrl: z.string().describe('URL of an image of the destination. This will be populated by a separate service.'),
-  imageHint: z.string().describe('One or two keywords for a relevant image search, e.g., "Eiffel Tower" or "Bali riceterrace".'),
-  estimatedPrice: z.number().describe('Estimated total price for the trip to this destination.'),
-  estimatedDuration: z.number().describe('Estimated duration of stay in days.'),
-  currency: z.string().optional().describe('The currency of the estimated price.'),
-  rating: z.union([z.number(), z.string()]).describe('The rating of the destination, from 1 to 5, or N/A if not available.'),
-}));
-
-export type SuggestDestinationsOutput = z.infer<
-  typeof SuggestDestinationsOutputSchema
->;
 
 export async function suggestDestinationsBasedOnPreferences(
   input: SuggestDestinationsInput

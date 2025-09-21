@@ -8,7 +8,6 @@ import { useToast } from "@/hooks/use-toast";
 import type {
   GenerateItineraryInput,
   GenerateItineraryOutput,
-  AdjustItineraryForBudgetOutput,
 } from "@/lib/types";
 
 import {
@@ -67,7 +66,7 @@ export default function ItineraryDisplay({
   onBack,
 }: ItineraryDisplayProps) {
   const [itinerary, setItinerary] = useState<GenerateItineraryOutput | null>(null);
-  const [adjustedItinerary, setAdjustedItinerary] = useState<AdjustItineraryForBudgetOutput | null>(null);
+  const [hasBeenAdjusted, setHasBeenAdjusted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isAdjusting, setIsAdjusting] = useState(false);
   const { toast } = useToast();
@@ -95,16 +94,21 @@ export default function ItineraryDisplay({
   const handleAdjustBudget = async () => {
     if (!itinerary) return;
     setIsAdjusting(true);
+    setHasBeenAdjusted(true); // Mark that an adjustment has been attempted
     try {
         const result = await getAdjustedItinerary({
             itinerary: itinerary.itinerary,
             budget: params.budget,
             currentCost: itinerary.totalPrice,
+            destination: params.destinations,
+            interests: params.interests,
+            currency: params.currency,
         });
-        setAdjustedItinerary(result);
+        // Replace the old itinerary with the new, adjusted one
+        setItinerary(result);
         toast({
             title: "Itinerary Adjusted!",
-            description: "We've updated your plan to better fit your budget."
+            description: "We've found some cheaper options for you."
         })
     } catch (error) {
         toast({
@@ -145,8 +149,8 @@ export default function ItineraryDisplay({
   }
 
   const budgetExceeded = itinerary.totalPrice > params.budget;
-  const displayItinerary = adjustedItinerary?.adjustedItinerary || itinerary.itinerary;
-  const displayPrice = adjustedItinerary?.revisedCost || itinerary.totalPrice;
+  const displayItinerary = itinerary.itinerary;
+  const displayPrice = itinerary.totalPrice;
   const displayTime = itinerary.totalTime;
 
   const formattedPrice = new Intl.NumberFormat(undefined, {
@@ -171,7 +175,7 @@ export default function ItineraryDisplay({
         </div>
       </CardHeader>
       <CardContent>
-        {budgetExceeded && !adjustedItinerary && (
+        {budgetExceeded && !hasBeenAdjusted && (
             <Alert variant="destructive" className="mb-6">
                 <AlertTriangle className="h-4 w-4" />
                 <AlertTitle>Budget Exceeded!</AlertTitle>
@@ -184,12 +188,12 @@ export default function ItineraryDisplay({
                 </AlertDescription>
             </Alert>
         )}
-        {adjustedItinerary && (
+        {hasBeenAdjusted && !budgetExceeded && (
              <Alert className="mb-6 bg-green-50 border-green-200 dark:bg-green-950 dark:border-green-800">
                 <Wallet className="h-4 w-4 text-green-600" />
                 <AlertTitle className="text-green-800 dark:text-green-300">Itinerary Adjusted for Budget</AlertTitle>
                 <AlertDescription className="text-green-700 dark:text-green-400">
-                   {adjustedItinerary.message}
+                   We've successfully revised the plan to fit your budget!
                 </AlertDescription>
             </Alert>
         )}
