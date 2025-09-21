@@ -87,8 +87,10 @@ The user's location is: {{{userLocation}}}
 
 Consider these preferences and suggest ONE destination. Explain your reasoning in detail, connecting the user's answers to the suggested destination.
 
-IMPORTANT:
-- If the user selects "Domestic" or "Local" for travel scope AND they have provided their location, you MUST suggest a destination within their stated country or region.
+IMPORTANT LOCALIZATION RULES:
+- If the travel scope is "Local" and the user provides a city name (e.g., "Bengaluru"), you MUST suggest a neighborhood, park, museum, or point of interest WITHIN that city. Do not suggest another city.
+- If the travel scope is "Local" and the user provides a state or region (e.g., "Karnataka"), you may suggest a city or destination within that state/region.
+- If the travel scope is "Domestic" and a user location is provided, you MUST suggest a destination within the same country as the user's location.
 - If the user selects "Domestic" or "Local" and has NOT provided a location, you MUST frame your suggestion as an example and state that you can provide a more tailored recommendation if they provide their location. For example: "For a domestic trip, a great city to explore is [City, Country]. If you provide your location, I can suggest a destination closer to you."
 
 Return a valid JSON object matching the output schema.
