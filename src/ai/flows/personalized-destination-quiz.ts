@@ -57,30 +57,34 @@ export type PersonalizedDestinationQuizOutput = z.infer<
   typeof PersonalizedDestinationQuizOutputSchema
 >;
 
-export async function personalizedDestinationQuiz(
-  input: PersonalizedDestinationQuizInput
-): Promise<PersonalizedDestinationQuizOutput> {
-  return personalizedDestinationQuizFlow(input);
-}
-
-const prompt = ai.definePrompt({
+const quizPrompt = ai.definePrompt({
   name: 'personalizedDestinationQuizPrompt',
   input: {schema: PersonalizedDestinationQuizInputSchema},
   output: {schema: PersonalizedDestinationQuizOutputSchema},
-  prompt: `Based on the user's answers to the following questions, suggest a travel destination that matches their interests and personality.\n\nQuestions:\n1. What type of scenery appeals to you most? {{{question1}}}\n2. What is your preferred travel pace? {{{question2}}}\n3. What kind of activities do you enjoy on vacation? {{{question3}}}\n4. What is your ideal travel companion? {{{question4}}}\n\nConsider these preferences and suggest ONE destination. Explain your reasoning in detail, connecting the user's answers to the suggested destination. Return the name of the suggested destination in suggestedDestination and reasoning in reasoning.`,
+  prompt: `Based on the user's answers to the following questions, suggest a travel destination that matches their interests and personality.
+
+Questions:
+1. What type of scenery appeals to you most? {{{question1}}}
+2. What is your preferred travel pace? {{{question2}}}
+3. What kind of activities do you enjoy on vacation? {{{question3}}}
+4. What is your ideal travel companion? {{{question4}}}
+
+Consider these preferences and suggest ONE destination. Explain your reasoning in detail, connecting the user's answers to the suggested destination.`,
 });
 
-const personalizedDestinationQuizFlow = ai.defineFlow(
-  {
-    name: 'personalizedDestinationQuizFlow',
-    inputSchema: PersonalizedDestinationQuizInputSchema,
-    outputSchema: PersonalizedDestinationQuizOutputSchema,
-  },
-  async input => {
-    const {output} = await prompt(input);
+export async function personalizedDestinationQuiz(
+  input: PersonalizedDestinationQuizInput
+): Promise<PersonalizedDestinationQuizOutput> {
+  console.log('personalizedDestinationQuiz flow started with input:', input);
+  try {
+    const {output} = await quizPrompt(input);
+    console.log('AI response received in flow:', output);
     if (!output) {
-      throw new Error('The AI did not return a valid output.');
+      throw new Error('AI did not return a valid output.');
     }
     return output;
+  } catch (e) {
+    console.error('Error within personalizedDestinationQuiz flow:', e);
+    throw e;
   }
-);
+}
