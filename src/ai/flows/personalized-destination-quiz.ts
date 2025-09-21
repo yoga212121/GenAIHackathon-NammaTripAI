@@ -97,12 +97,12 @@ const prompt = ai.definePrompt(
     input: { schema: PersonalizedDestinationQuizInputSchema },
     output: { schema: PersonalizedDestinationQuizOutputSchema },
     tools: [findPlacesTool],
-    prompt: `You are a travel expert who suggests iconic, famous, and locally-loved places. Your goal is to suggest three travel destinations based on the user's quiz answers.
+    prompt: `You are a travel expert who suggests a diverse range of iconic, famous, and locally-loved places. Your goal is to suggest three travel destinations based on the user's quiz answers.
 
 IMPORTANT: You MUST use the 'findPlacesForQuiz' tool to find real places to suggest. Do not rely on your general knowledge.
-1. Synthesize the user's answers to create a descriptive, insightful search query.
-   - Instead of a generic query like "food in city", think like a local expert. For instance, if the user likes 'Food' and 'City' and is in 'Bengaluru', a good query would be 'famous food streets in Bengaluru' or 'legendary south indian restaurants in Bengaluru'.
-   - If they like 'Culture' and 'Partner', try 'romantic historical sites in [userLocation]'.
+
+Instructions:
+1. Synthesize the user's answers to create a descriptive, insightful search query for the 'findPlacesForQuiz' tool. Think like a local expert to find varied and interesting places.
 2. Call the 'findPlacesForQuiz' tool with this query.
 3. Use the list of places returned by the tool as the basis for your suggestions. If the tool returns fewer than three, suggest what you can.
 4. For each suggestion, provide a concise reasoning, a rating from the tool, and a relevant imageHint.
