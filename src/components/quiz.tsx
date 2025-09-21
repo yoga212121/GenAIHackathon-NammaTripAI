@@ -44,7 +44,7 @@ const quizQuestions: QuizQuestion[] = [
     title: "What is your preferred travel pace?",
     options: [
       { value: "Relaxed", label: "Relaxed", imageId: "quiz-activity-relaxation" },
-      { value: "Moderate", label: "Moderate", imageId: "quiz-activity-culture" },
+      { value: "Moderate", label: "Moderate", imageId: "quiz-pace-moderate" },
       { value: "Fast-paced", label: "Fast-paced", imageId: "quiz-activity-adventure" },
     ],
   },
