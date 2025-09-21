@@ -22,16 +22,37 @@ import {
 } from "@/ai/flows/budget-aware-itinerary-adjustments";
 import { getPlaceImageUrls } from "@/ai/flows/placesService";
 
+// Wrapper type to combine quiz answers with destination preferences for the action
+type QuizAndPrefs = SuggestDestinationsInput & {
+  quizAnswers: PersonalizedDestinationQuizInput;
+};
+
 export async function runQuiz(
-  input: PersonalizedDestinationQuizInput
-): Promise<PersonalizedDestinationQuizOutput> {
+  quizAnswers: PersonalizedDestinationQuizInput,
+  destinationPrefs: Omit<SuggestDestinationsInput, 'destinations' | 'interests'>
+): Promise<SuggestDestinationsOutput> {
   try {
-    const result = await personalizedDestinationQuiz(input);
-    // Validate that the result is an array and has items.
-    if (!result || !Array.isArray(result) || result.length === 0) {
+    // 1. Get destination suggestions based on quiz answers
+    const quizResult = await personalizedDestinationQuiz(quizAnswers);
+    if (!quizResult || !Array.isArray(quizResult) || quizResult.length === 0) {
       throw new Error("AI returned an invalid or empty response for the quiz.");
     }
-    return result;
+    
+    // 2. Use the top suggestion from the quiz to get more detailed suggestions
+    const topDestination = quizResult[0];
+
+    const suggestInput: SuggestDestinationsInput = {
+      destinations: topDestination.destination, // Use the destination from the quiz
+      interests: [quizAnswers.question3 || ''], // Use interests from the quiz
+      ...destinationPrefs
+    };
+
+    const suggestions = await suggestDestinationsBasedOnPreferences(suggestInput);
+    if (!suggestions || !Array.isArray(suggestions) || suggestions.length === 0) {
+      throw new Error("AI could not find any suggestions for the destination.");
+    }
+
+    return suggestions;
   } catch (error) {
     console.error("Error in runQuiz action:", error);
     if (error instanceof Error) {

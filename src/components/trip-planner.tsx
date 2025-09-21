@@ -32,9 +32,13 @@ const formSchema = z.object({
   currency: z.string().min(3).max(3),
 });
 
+type PlannerInput = Omit<GenerateItineraryInput, "destinations"> & {
+  destinations?: string;
+};
+
 type TripPlannerProps = {
   onPlannerSubmit: (
-    plannerInput: Omit<GenerateItineraryInput, "destinations">,
+    plannerInput: PlannerInput,
     destination: string
   ) => void;
 };

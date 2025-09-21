@@ -2,12 +2,9 @@
 
 import { useState } from "react";
 import type {
-  PersonalizedDestinationQuizOutput,
-  SuggestDestinationsOutput,
   GenerateItineraryInput,
 } from "@/lib/types";
 
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Header } from "@/components/header";
 import { Quiz } from "@/components/quiz";
@@ -15,36 +12,23 @@ import { TripPlanner } from "@/components/trip-planner";
 import ItineraryDisplay from "@/components/itinerary-display";
 
 type View = "start" | "itinerary";
+type PlannerInput = Omit<GenerateItineraryInput, "destinations"> & {
+  destinations?: string;
+};
+
 
 export default function Home() {
   const [view, setView] = useState<View>("start");
   const [itineraryParams, setItineraryParams] =
     useState<GenerateItineraryInput | null>(null);
 
-  const handleQuizComplete = (result: PersonalizedDestinationQuizOutput) => {
-    if (!result || result.length === 0) {
-      handleReset(); // Or show an error
-      return;
-    }
-    const topSuggestion = result[0];
-    const params: GenerateItineraryInput = {
-      destinations: topSuggestion.destination,
-      budget: 1500, // Using a default budget for quiz-based generation
-      timeline: "a few days", // Using a default timeline
-      interests: "as per suggestion",
-      currency: "USD",
-    };
-    setItineraryParams(params);
-    setView("itinerary");
-  };
-
   const handlePlannerSubmit = (
-    plannerInput: Omit<GenerateItineraryInput, "destinations">,
+    plannerInput: PlannerInput,
     destination: string
   ) => {
     const params: GenerateItineraryInput = {
-      destinations: destination,
       ...plannerInput,
+      destinations: destination,
     };
     setItineraryParams(params);
     setView("itinerary");
@@ -88,7 +72,7 @@ export default function Home() {
                 <TabsTrigger value="planner">✈️ Plan My Trip</TabsTrigger>
               </TabsList>
               <TabsContent value="quiz">
-                <Quiz onQuizComplete={handleQuizComplete} />
+                <Quiz onQuizComplete={handlePlannerSubmit} />
               </TabsContent>
               <TabsContent value="planner">
                 <TripPlanner onPlannerSubmit={handlePlannerSubmit} />

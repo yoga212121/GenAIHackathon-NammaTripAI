@@ -56,7 +56,7 @@ const findDestinationsTool = ai.defineTool(
     inputSchema: z.object({
       query: z.string().describe("The search query, combining user interests and desired locations. For example: 'popular art museums in Italy' or 'best hiking trails in the Alps' or 'highly rated beaches in the Caribbean'."),
     }),
-    outputSchema: z.string().describe('A stringified JSON array of up to 5 places, each with a name, place_id, and rating. Returns an empty array string if no places are found.'),
+    outputSchema: z.string().describe('A stringified JSON array of up to 5 places, each with a name, place_id, and rating. Returns an empty array string if no places were found.'),
   },
   async (input) => {
     const places = await searchPlaces(input.query);
