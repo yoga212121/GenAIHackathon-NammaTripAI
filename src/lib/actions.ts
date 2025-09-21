@@ -78,7 +78,8 @@ export async function getAdjustedItinerary(
   try {
     const result = await adjustItineraryForBudget(input);
     return result;
-  } catch (error) {
+  } catch (error)
+ {
     console.error("Error in getAdjustedItinerary:", error);
     if (error instanceof Error) {
         throw new Error(`Failed to adjust itinerary from AI. Details: ${error.message}`);

@@ -24,6 +24,7 @@ import { useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const formSchema = z.object({
+  destinations: z.string().min(3, "Please enter at least one destination."),
   budget: z.coerce.number().min(1, "Budget must be greater than 0."),
   duration: z.coerce.number().min(1, "Duration must be at least 1 day."),
   interests: z.string().min(3, "Please list at least one interest."),
@@ -41,6 +42,7 @@ export function TripPlanner({ onPlannerSubmit }: TripPlannerProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      destinations: "New York",
       budget: 1000,
       duration: 7,
       interests: "beaches, hiking, food",
@@ -90,6 +92,19 @@ export function TripPlanner({ onPlannerSubmit }: TripPlannerProps) {
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+             <FormField
+              control={form.control}
+              name="destinations"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Destination(s)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g., Paris, Tokyo" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormItem>
               <FormLabel>Your Budget</FormLabel>
               <div className="flex gap-2">

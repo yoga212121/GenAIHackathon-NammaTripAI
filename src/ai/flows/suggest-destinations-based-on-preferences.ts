@@ -12,6 +12,7 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const SuggestDestinationsInputSchema = z.object({
+  destinations: z.string().describe('The destination(s) the user is interested in.'),
   budget: z.number().describe('The user’s budget for the trip.'),
   duration: z.number().describe('The duration of the trip in days.'),
   interests: z
@@ -49,6 +50,7 @@ const prompt = ai.definePrompt({
   output: {schema: SuggestDestinationsOutputSchema},
   prompt: `Suggest three travel destinations based on the user's preferences.
 
+Destinations: {{{destinations}}}
 Budget: {{{budget}}} {{{currency}}}
 Duration: {{{duration}}} days
 Interests: {{{interests}}}
