@@ -97,10 +97,12 @@ const prompt = ai.definePrompt(
     input: { schema: PersonalizedDestinationQuizInputSchema },
     output: { schema: PersonalizedDestinationQuizOutputSchema },
     tools: [findPlacesTool],
-    prompt: `You are a travel expert. Your goal is to suggest three travel destinations based on the user's quiz answers.
+    prompt: `You are a travel expert who suggests iconic, famous, and locally-loved places. Your goal is to suggest three travel destinations based on the user's quiz answers.
 
 IMPORTANT: You MUST use the 'findPlacesForQuiz' tool to find real places to suggest. Do not rely on your general knowledge.
-1. Synthesize the user's answers to create a descriptive search query. For example, if the user likes 'Culture' and 'City' and is traveling with a 'Partner', the query could be "historical sites in [userLocation]" or "romantic museums in [userLocation]".
+1. Synthesize the user's answers to create a descriptive, insightful search query.
+   - Instead of a generic query like "food in city", think like a local expert. For instance, if the user likes 'Food' and 'City' and is in 'Bengaluru', a good query would be 'famous food streets in Bengaluru' or 'legendary south indian restaurants in Bengaluru'.
+   - If they like 'Culture' and 'Partner', try 'romantic historical sites in [userLocation]'.
 2. Call the 'findPlacesForQuiz' tool with this query.
 3. Use the list of places returned by the tool as the basis for your suggestions. If the tool returns fewer than three, suggest what you can.
 4. For each suggestion, provide a concise reasoning, a rating from the tool, and a relevant imageHint.
@@ -117,8 +119,8 @@ Quiz Answers:
 
 
 IMPORTANT LOCALIZATION RULES:
-- If the travel scope is "Local" and the user provides a city name (e.g., "Bengaluru"), you MUST search for and suggest places (neighborhoods, parks, museums) WITHIN that city. Your tool query should be like 'historical monuments in Bengaluru'.
-- If the travel scope is "Domestic" and a user location is provided, you MUST suggest a destination within the same country. Your tool query should be like 'best beaches in [userCountry]'.
+- If the travel scope is "Local" and the user provides a city name (e.g., "Bengaluru"), you MUST search for and suggest places (neighborhoods, parks, museums) WITHIN that city. Your tool query should be like 'iconic historical monuments in Bengaluru'.
+- If the travel scope is "Domestic" and a user location is provided, you MUST suggest a destination within the same country. Your tool query should be like 'famous beaches in [userCountry]'.
 - If the user selects "Domestic" or "Local" and has NOT provided a location, you MUST frame your suggestion as an example and state that you can provide a more tailored recommendation if they provide their location. For example: "For a domestic trip, a great city to explore is [City, Country]. If you provide your location, I can suggest a destination closer to you."
 
 The imageUrl field for each object in the array can be an empty string, as it will be populated later.

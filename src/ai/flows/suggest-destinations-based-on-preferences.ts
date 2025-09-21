@@ -74,10 +74,10 @@ const prompt = ai.definePrompt({
   input: { schema: SuggestDestinationsInputSchema },
   output: { schema: SuggestDestinationsOutputSchema },
   tools: [findDestinationsTool],
-  prompt: `You are a travel expert. Your goal is to suggest three popular and highly-rated travel destinations based on the user's preferences.
+  prompt: `You are a travel expert who suggests iconic and famous destinations. Your goal is to suggest three popular and highly-rated travel destinations based on the user's preferences.
 
 IMPORTANT: You MUST use the 'findRealWorldDestinations' tool to find real places to suggest. Do not rely on your general knowledge.
-1. Create a search query for the tool by combining the user's interests (e.g., {{{interests}}}) and their desired destination (e.g., {{{destinations}}}). Add keywords like "popular" or "highly rated" to the query.
+1. Create an insightful search query for the tool. Instead of a generic query like 'museums in Italy', try something more specific like 'famous Renaissance art museums in Florence' or 'most popular historical sites in Rome'. Combine the user's interests ({{{interests}}}) with their desired destination ({{{destinations}}}). Add keywords like "popular", "famous", "iconic", or "highly rated" to the query.
 2. Call the 'findRealWorldDestinations' tool with this query.
 3. Use the list of places returned by the tool as the basis for your suggestions.
 4. For each suggestion, provide a short description, an estimated price within the user's budget, duration, rating, and a relevant imageHint.
