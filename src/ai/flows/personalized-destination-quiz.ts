@@ -20,8 +20,7 @@ const PersonalizedDestinationQuizInputSchema = z.object({
       'What type of scenery appeals to you most? (Mountains, Beach, City, Countryside)'
     ),
   question2: z
-    .string()
-    .describe(
+    .string()    .describe(
       'What is your preferred travel pace? (Relaxed, Moderate, Fast-paced)'
     ),
   question3: z
@@ -39,6 +38,7 @@ const PersonalizedDestinationQuizInputSchema = z.object({
     .describe(
       'What is your desired travel scope? (Local, Domestic, International)'
     ),
+  userLocation: z.string().optional().describe("The user's location (country, region, or city) to help with local/domestic suggestions.")
 });
 
 export type PersonalizedDestinationQuizInput = z.infer<
@@ -81,10 +81,15 @@ Questions:
 3. What kind of activities do you enjoy on vacation? {{{question3}}}
 4. What is your ideal travel companion? {{{question4}}}
 5. What is your desired travel scope? {{{question5}}}
+{{#if userLocation}}
+The user's location is: {{{userLocation}}}
+{{/if}}
 
 Consider these preferences and suggest ONE destination. Explain your reasoning in detail, connecting the user's answers to the suggested destination.
 
-IMPORTANT: If the user selects "Domestic" or "Local" for travel scope, you do not know their location. You MUST frame your suggestion as an example and state that you can provide a more tailored recommendation if they provide their country or region. For example: "For a domestic trip, a great city to explore is [City, Country]. If you provide your location, I can suggest a destination closer to you."
+IMPORTANT:
+- If the user selects "Domestic" or "Local" for travel scope AND they have provided their location, you MUST suggest a destination within their stated country or region.
+- If the user selects "Domestic" or "Local" and has NOT provided a location, you MUST frame your suggestion as an example and state that you can provide a more tailored recommendation if they provide their location. For example: "For a domestic trip, a great city to explore is [City, Country]. If you provide your location, I can suggest a destination closer to you."
 
 Return a valid JSON object matching the output schema.
 `,

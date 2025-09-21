@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { runQuiz } from "@/lib/actions";
 import { useToast } from "@/hooks/use-toast";
@@ -14,7 +14,9 @@ import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Loader2 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Loader2, ArrowRight } from "lucide-react";
 
 const quizQuestions: QuizQuestion[] = [
   {
@@ -84,6 +86,7 @@ const quizQuestions: QuizQuestion[] = [
         { value: "Domestic", label: "Domestic (Country)", imageId: "quiz-scope-domestic" },
         { value: "International", label: "International", imageId: "quiz-scope-international" },
     ],
+    askForLocation: true,
   },
 ];
 
@@ -95,21 +98,44 @@ export function Quiz({ onQuizComplete }: QuizProps) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Partial<PersonalizedDestinationQuizInput>>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [showLocationInput, setShowLocationInput] = useState(false);
+  const [location, setLocation] = useState("");
   const { toast } = useToast();
+  const locationInputRef = useRef<HTMLInputElement>(null);
+
 
   const handleAnswer = (questionId: keyof PersonalizedDestinationQuizInput, answer: string) => {
     const newAnswers = { ...answers, [questionId]: answer };
     setAnswers(newAnswers);
 
-    if (currentQuestionIndex < quizQuestions.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
+    const currentQuestion = quizQuestions[currentQuestionIndex];
+    if (currentQuestion.askForLocation && (answer === 'Local' || answer === 'Domestic')) {
+        setShowLocationInput(true);
+        // Focus the input field when it appears
+        setTimeout(() => locationInputRef.current?.focus(), 0);
     } else {
-      handleSubmit(newAnswers);
+        advanceQuiz(newAnswers);
     }
   };
 
+  const handleLocationSubmit = () => {
+    const newAnswers = { ...answers, userLocation: location };
+    setAnswers(newAnswers);
+    advanceQuiz(newAnswers);
+  };
+  
+  const advanceQuiz = (currentAnswers: Partial<PersonalizedDestinationQuizInput>) => {
+    setShowLocationInput(false);
+    if (currentQuestionIndex < quizQuestions.length - 1) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
+    } else {
+      handleSubmit(currentAnswers);
+    }
+  }
+
+
   const handleSubmit = async (finalAnswers: Partial<PersonalizedDestinationQuizInput>) => {
-    if (Object.keys(finalAnswers).length !== quizQuestions.length) {
+    if (Object.keys(finalAnswers).filter(k => k.startsWith('question')).length !== quizQuestions.length) {
       toast({
         variant: "destructive",
         title: "Incomplete Quiz",
@@ -130,6 +156,15 @@ export function Quiz({ onQuizComplete }: QuizProps) {
       setIsLoading(false);
     }
   };
+
+  const goBack = () => {
+      if (showLocationInput) {
+          setShowLocationInput(false);
+      } else if (currentQuestionIndex > 0) {
+          setCurrentQuestionIndex(currentQuestionIndex - 1);
+      }
+  }
+
 
   if (isLoading) {
     return (
@@ -154,42 +189,61 @@ export function Quiz({ onQuizComplete }: QuizProps) {
       <h2 className="font-headline text-2xl font-semibold text-center mb-6">
         {currentQuestion.title}
       </h2>
-      <div className={`grid grid-cols-2 ${currentQuestion.options.length === 3 ? 'md:grid-cols-3' : 'md:grid-cols-4'} gap-4`}>
-        {currentQuestion.options.map((option) => {
-          const imageData = PlaceHolderImages.find(p => p.id === option.imageId);
-          return (
-            <Card
-              key={option.value}
-              className="overflow-hidden cursor-pointer group transition-all hover:shadow-lg hover:scale-105"
-              onClick={() => handleAnswer(currentQuestion.id, option.value)}
-            >
-              <CardContent className="p-0">
-                <div className="relative aspect-w-1 aspect-h-1">
-                  {imageData && (
-                    <Image
-                      src={imageData.imageUrl}
-                      alt={option.label}
-                      width={400}
-                      height={400}
-                      className="object-cover w-full h-full"
-                      data-ai-hint={imageData.imageHint}
-                    />
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  <p className="absolute bottom-2 left-2 right-2 text-primary-foreground font-semibold text-center text-sm md:text-base p-1 bg-black/30 rounded-md">
-                    {option.label}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
-      {currentQuestionIndex > 0 && (
+      
+      {showLocationInput ? (
+        <div className="space-y-4 animate-in fade-in-20 text-center">
+            <Label htmlFor="location" className="text-lg">Please provide your Country or Region</Label>
+            <Input 
+                id="location" 
+                ref={locationInputRef}
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                placeholder="e.g., USA, Europe"
+                className="max-w-xs mx-auto"
+            />
+            <Button onClick={handleLocationSubmit} size="lg">
+                Continue <ArrowRight className="ml-2" />
+            </Button>
+        </div>
+      ) : (
+        <div className={`grid grid-cols-2 ${currentQuestion.options.length === 3 ? 'md:grid-cols-3' : 'md:grid-cols-4'} gap-4`}>
+            {currentQuestion.options.map((option) => {
+            const imageData = PlaceHolderImages.find(p => p.id === option.imageId);
+            return (
+                <Card
+                key={option.value}
+                className="overflow-hidden cursor-pointer group transition-all hover:shadow-lg hover:scale-105"
+                onClick={() => handleAnswer(currentQuestion.id as keyof PersonalizedDestinationQuizInput, option.value)}
+                >
+                <CardContent className="p-0">
+                    <div className="relative aspect-w-1 aspect-h-1">
+                    {imageData && (
+                        <Image
+                        src={imageData.imageUrl}
+                        alt={option.label}
+                        width={400}
+                        height={400}
+                        className="object-cover w-full h-full"
+                        data-ai-hint={imageData.imageHint}
+                        />
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                    <p className="absolute bottom-2 left-2 right-2 text-primary-foreground font-semibold text-center text-sm md:text-base p-1 bg-black/30 rounded-md">
+                        {option.label}
+                    </p>
+                    </div>
+                </CardContent>
+                </Card>
+            );
+            })}
+        </div>
+      )}
+
+      {(currentQuestionIndex > 0 || showLocationInput) && (
         <div className="text-center mt-6">
           <Button
             variant="ghost"
-            onClick={() => setCurrentQuestionIndex(currentQuestionIndex - 1)}
+            onClick={goBack}
           >
             Back
           </Button>

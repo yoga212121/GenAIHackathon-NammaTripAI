@@ -25,9 +25,10 @@ export type AdjustItineraryForBudgetInput = AIAdjustItineraryInput;
 export type AdjustItineraryForBudgetOutput = AIAdjustItineraryOutput;
 
 export type QuizQuestion = {
-  id: keyof PersonalizedDestinationQuizInput;
+  id: string;
   title: string;
   options: QuizOption[];
+  askForLocation?: boolean;
 };
 
 export type QuizOption = {
