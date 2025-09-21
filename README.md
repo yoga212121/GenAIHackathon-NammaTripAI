@@ -23,3 +23,46 @@ This is a Next.js web application, bootstrapped with Firebase Studio, that acts 
 - **Styling**: [Tailwind CSS](https://tailwindcss.com/)
 - **Forms**: [React Hook Form](https://react-hook-form.com/) with [Zod](https://zod.dev/) for validation
 - **Icons**: [Lucide React](https://lucide.dev/)
+
+## Getting Started
+
+Follow these instructions to set up and run the project on your local machine.
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) (v18 or later recommended)
+- [npm](https://www.npmjs.com/) (comes with Node.js)
+
+### Installation
+
+1.  **Clone the repository**:
+    ```bash
+    git clone https://github.com/your-username/namma-trip-ai.git
+    cd namma-trip-ai
+    ```
+
+2.  **Install dependencies**:
+    ```bash
+    npm install
+    ```
+
+### Environment Variables
+
+The application uses Google AI and the Google Maps Places API, which require an API key.
+
+1.  Create a new file named `.env` in the root of your project directory.
+2.  Add your API key to this file. You can get a key from the [Google AI Studio](https://aistudio.google.com/app/apikey).
+    ```
+    GEMINI_API_KEY=YOUR_API_KEY
+    ```
+    **Note**: The same API key is used for both Genkit and the Google Places API calls in this project. Make sure the Places API is enabled for your key in the Google Cloud Console.
+
+### Running the Development Server
+
+Once the dependencies are installed and the environment variables are set, you can start the development server:
+
+```bash
+npm run dev
+```
+
+Open [http://localhost:9003](http://localhost:9003) with your browser to see the application running.
