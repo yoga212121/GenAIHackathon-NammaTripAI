@@ -26,7 +26,8 @@ export async function runQuiz(
 ): Promise<PersonalizedDestinationQuizOutput> {
   try {
     const result = await personalizedDestinationQuiz(input);
-    if (!result || !result.suggestedDestination) {
+    // Validate that the result is an array and has items.
+    if (!result || !Array.isArray(result)) {
       throw new Error("AI returned an invalid or empty response for the quiz.");
     }
     return result;
