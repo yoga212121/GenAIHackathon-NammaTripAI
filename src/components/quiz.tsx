@@ -11,7 +11,7 @@ import type {
 
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -115,6 +115,7 @@ export function Quiz({ onQuizComplete }: QuizProps) {
   const [location, setLocation] = useState("");
   const [budget, setBudget] = useState([500, 2000]);
   const [currency, setCurrency] = useState("USD");
+  const [duration, setDuration] = useState(7);
   const { toast } = useToast();
   const locationInputRef = useRef<HTMLInputElement>(null);
 
@@ -164,7 +165,7 @@ export function Quiz({ onQuizComplete }: QuizProps) {
           budgetMin: budget[0],
           budgetMax: budget[1],
           currency,
-          duration: 7, // Default duration for quiz
+          duration: duration,
           interests: [answers.question3 || 'general'],
       });
 
@@ -182,7 +183,7 @@ export function Quiz({ onQuizComplete }: QuizProps) {
 
       const plannerInput: PlannerInput = {
         budget: budget[1],
-        timeline: `7 days`,
+        timeline: `${duration} days`,
         interests: answers.question3 || 'general',
         currency: currency,
       };
@@ -248,10 +249,25 @@ export function Quiz({ onQuizComplete }: QuizProps) {
                 <Card className="w-full max-w-lg">
                     <CardHeader>
                         <CardTitle className="font-headline text-2xl">
-                        Finally, what's your budget?
+                         Set your trip details
                         </CardTitle>
+                        <CardDescription>
+                            Finally, let us know your budget and trip duration.
+                        </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-8">
+                         <div className="space-y-2">
+                            <div className="flex justify-between items-center">
+                                <Label>Trip Duration (days)</Label>
+                                <Input 
+                                    type="number"
+                                    value={duration}
+                                    onChange={(e) => setDuration(parseInt(e.target.value, 10))}
+                                    className="w-24"
+                                    min="1"
+                                />
+                            </div>
+                        </div>
                         <div className="space-y-2">
                             <div className="flex justify-between items-center">
                                 <Label>Your Budget Range</Label>
@@ -355,3 +371,5 @@ export function Quiz({ onQuizComplete }: QuizProps) {
     </Card>
   );
 }
+
+    
