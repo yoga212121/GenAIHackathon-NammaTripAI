@@ -44,12 +44,12 @@ const PersonalizedDestinationQuizOutputSchema = z.object({
   suggestedDestination: z
     .string()
     .describe(
-      'A destination that matches the user\'s interests and personality based on their quiz answers.'
+      "A destination that matches the user's interests and personality based on their quiz answers."
     ),
   reasoning: z
     .string()
     .describe(
-      'Explanation of why the destination matches the user\'s quiz answers.'
+      "Explanation of why the destination matches the user's quiz answers."
     ),
 });
 
@@ -77,7 +77,7 @@ const personalizedDestinationQuizFlow = ai.defineFlow(
     outputSchema: PersonalizedDestinationQuizOutputSchema,
   },
   async input => {
-    const {output} = await prompt(input);
-    return output!;
+    const response = await prompt(input);
+    return response.output!;
   }
 );
