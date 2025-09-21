@@ -113,8 +113,8 @@ export function Quiz({ onQuizComplete }: QuizProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [quizState, setQuizState] = useState<QuizState>('questions');
   const [location, setLocation] = useState("");
-  const [budget, setBudget] = useState([500, 2000]);
-  const [currency, setCurrency] = useState("USD");
+  const [budget, setBudget] = useState([20000, 80000]);
+  const [currency, setCurrency] = useState("INR");
   const [duration, setDuration] = useState(7);
   const { toast } = useToast();
   const locationInputRef = useRef<HTMLInputElement>(null);
@@ -272,29 +272,29 @@ export function Quiz({ onQuizComplete }: QuizProps) {
                             <div className="flex justify-between items-center">
                                 <Label>Your Budget Range</Label>
                                 <div className="flex items-center gap-2">
-                                    <span className="font-semibold text-primary text-sm">
-                                    {new Intl.NumberFormat('en-US', { style: 'currency', currency, minimumFractionDigits: 0 }).format(budget[0])} - {new Intl.NumberFormat('en-US', { style: 'currency', currency, minimumFractionDigits: 0 }).format(budget[1])}
+                                     <span className="font-semibold text-primary text-sm">
+                                        {budget[0]} - {budget[1]}
                                     </span>
                                     <Select onValueChange={setCurrency} defaultValue={currency}>
                                         <SelectTrigger className="w-[100px]">
                                             <SelectValue placeholder="Currency" />
                                         </SelectTrigger>
                                         <SelectContent>
+                                            <SelectItem value="INR">INR</SelectItem>
                                             <SelectItem value="USD">USD</SelectItem>
                                             <SelectItem value="EUR">EUR</SelectItem>
                                             <SelectItem value="GBP">GBP</SelectItem>
                                             <SelectItem value="JPY">JPY</SelectItem>
                                             <SelectItem value="CAD">CAD</SelectItem>
                                             <SelectItem value="AUD">AUD</SelectItem>
-                                            <SelectItem value="INR">INR</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
                             </div>
                             <Slider
                                 min={0}
-                                max={10000}
-                                step={100}
+                                max={100000}
+                                step={1000}
                                 value={budget}
                                 onValueChange={setBudget}
                                 className="py-2"

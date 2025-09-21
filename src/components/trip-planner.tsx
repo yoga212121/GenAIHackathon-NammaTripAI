@@ -51,15 +51,14 @@ export function TripPlanner({ onPlannerSubmit }: TripPlannerProps) {
     resolver: zodResolver(formSchema),
     defaultValues: {
       destinations: "New York",
-      budget: [500, 2000],
+      budget: [20000, 80000],
       duration: 7,
       interests: "museums, parks, food",
-      currency: "USD",
+      currency: "INR",
     },
   });
 
   const budgetValue = form.watch("budget");
-  const currencyValue = form.watch("currency");
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
@@ -152,7 +151,7 @@ export function TripPlanner({ onPlannerSubmit }: TripPlannerProps) {
                     <FormLabel>Your Budget Range</FormLabel>
                      <div className="flex items-center gap-2">
                         <span className="font-semibold text-primary text-sm">
-                           {new Intl.NumberFormat('en-US', { style: 'currency', currency: currencyValue, minimumFractionDigits: 0 }).format(budgetValue[0])} - {new Intl.NumberFormat('en-US', { style: 'currency', currency: currencyValue, minimumFractionDigits: 0 }).format(budgetValue[1])}
+                           {budgetValue[0]} - {budgetValue[1]}
                         </span>
                         <FormField
                             control={form.control}
@@ -165,13 +164,13 @@ export function TripPlanner({ onPlannerSubmit }: TripPlannerProps) {
                                 </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
+                                <SelectItem value="INR">INR</SelectItem>
                                 <SelectItem value="USD">USD</SelectItem>
                                 <SelectItem value="EUR">EUR</SelectItem>
                                 <SelectItem value="GBP">GBP</SelectItem>
                                 <SelectItem value="JPY">JPY</SelectItem>
                                 <SelectItem value="CAD">CAD</SelectItem>
                                 <SelectItem value="AUD">AUD</SelectItem>
-                                <SelectItem value="INR">INR</SelectItem>
                                 </SelectContent>
                             </Select>
                             )}
@@ -181,8 +180,8 @@ export function TripPlanner({ onPlannerSubmit }: TripPlannerProps) {
                   <FormControl>
                      <Slider
                         min={0}
-                        max={10000}
-                        step={100}
+                        max={100000}
+                        step={1000}
                         value={field.value}
                         onValueChange={field.onChange}
                         className="py-2"
