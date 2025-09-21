@@ -28,7 +28,8 @@ export type SuggestDestinationsInput = z.infer<
 const SuggestDestinationsOutputSchema = z.array(z.object({
   destination: z.string().describe('The name of the suggested destination.'),
   description: z.string().describe('A short description of the destination.'),
-  imageUrl: z.string().describe('URL of an image of the destination.'),
+  imageUrl: z.string().describe('URL of an image of the destination. Use a placeholder from picsum.photos.'),
+  imageHint: z.string().describe('One or two keywords for a relevant placeholder image, e.g., "botanical garden".'),
   estimatedPrice: z.number().describe('Estimated total price for the trip to this destination.'),
   estimatedDuration: z.number().describe('Estimated duration of stay in days.'),
   currency: z.string().optional().describe('The currency of the estimated price.'),
@@ -55,7 +56,9 @@ Budget: {{{budget}}} {{{currency}}}
 Duration: {{{duration}}} days
 Interests: {{{interests}}}
 
-Provide a list of destinations with a short description, an image URL for each, and an estimated price and duration.
+Provide a list of destinations with a short description, an image URL for each, an estimated price and duration, and a relevant imageHint for each destination.
+The image URL should be a placeholder from picsum.photos, in the format https://picsum.photos/seed/your-seed/600/400.
+The imageHint should be one or two keywords that accurately describe the destination, for example: "Eiffel Tower" or "Bali riceterrace".
 The estimated price should be in the requested currency: {{{currency}}}.
 Important: For each destination object in the output array, you MUST include a "currency" field with the value "{{{currency}}}".
 Format the output as a valid JSON array of objects matching the output schema.

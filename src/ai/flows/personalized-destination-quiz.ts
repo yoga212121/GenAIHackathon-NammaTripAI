@@ -56,6 +56,7 @@ const PersonalizedDestinationQuizOutputSchema = z.object({
     .describe(
       "Explanation of why the destination matches the user's quiz answers."
     ),
+    imageHint: z.string().describe('One or two keywords for a relevant placeholder image, e.g., "botanical garden".'),
 });
 
 export type PersonalizedDestinationQuizOutput = z.infer<
@@ -86,6 +87,7 @@ The user's location is: {{{userLocation}}}
 {{/if}}
 
 Consider these preferences and suggest ONE destination. Explain your reasoning in detail, connecting the user's answers to the suggested destination.
+Provide an 'imageHint' with one or two keywords that accurately describe the suggested destination for a placeholder image. For example: "Lalbagh Garden" or "Eiffel Tower".
 
 IMPORTANT LOCALIZATION RULES:
 - If the travel scope is "Local" and the user provides a city name (e.g., "Bengaluru"), you MUST suggest a neighborhood, park, museum, or point of interest WITHIN that city. Do not suggest another city.

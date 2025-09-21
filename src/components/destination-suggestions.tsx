@@ -52,6 +52,7 @@ export function DestinationSuggestions({
   };
 
   if (quizResult) {
+    const imageSeed = quizResult.imageHint.replace(/\s/g, "");
     return (
       <Card className="w-full max-w-2xl">
         <CardHeader className="text-center">
@@ -67,12 +68,12 @@ export function DestinationSuggestions({
             {quizResult.suggestedDestination}
           </h3>
           <Image
-            src={`https://picsum.photos/seed/${quizResult.suggestedDestination.replace(/\s/g, "")}/800/400`}
+            src={`https://picsum.photos/seed/${imageSeed}/800/400`}
             alt={quizResult.suggestedDestination}
             width={800}
             height={400}
             className="rounded-lg object-cover w-full aspect-video my-4"
-            data-ai-hint={`${quizResult.suggestedDestination} landmark`}
+            data-ai-hint={quizResult.imageHint}
           />
           <p className="text-lg text-foreground/90 mt-4">{quizResult.reasoning}</p>
         </CardContent>
@@ -100,18 +101,20 @@ export function DestinationSuggestions({
         </div>
         <Carousel className="w-full">
           <CarouselContent>
-            {plannerResults.map((dest, index) => (
+            {plannerResults.map((dest, index) => {
+              const imageSeed = dest.imageHint.replace(/\s/g, "");
+              return (
               <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
                 <div className="p-1 h-full">
                   <Card className="flex flex-col h-full overflow-hidden">
                     <CardHeader className="p-0">
                       <Image
-                        src={dest.imageUrl || `https://picsum.photos/seed/${dest.destination.replace(/\s/g, "")}/600/400`}
+                        src={dest.imageUrl || `https://picsum.photos/seed/${imageSeed}/600/400`}
                         alt={dest.destination}
                         width={600}
                         height={400}
                         className="w-full h-48 object-cover"
-                        data-ai-hint={`${dest.destination} travel`}
+                        data-ai-hint={dest.imageHint}
                       />
                     </CardHeader>
                     <div className="p-4 flex flex-col flex-grow">
@@ -128,7 +131,7 @@ export function DestinationSuggestions({
                   </Card>
                 </div>
               </CarouselItem>
-            ))}
+            )})}
           </CarouselContent>
           <CarouselPrevious className="ml-12" />
           <CarouselNext className="mr-12"/>
