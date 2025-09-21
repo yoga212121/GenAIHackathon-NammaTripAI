@@ -12,6 +12,8 @@ This is a Next.js web application, bootstrapped with Firebase Studio, that acts 
 - **Real-World Place Integration**: Uses the Google Places API to fetch details about attractions and restaurants, ensuring all suggestions are real and relevant.
 - **Authentic & Famous Suggestions**: The AI is prompted to search for "famous," "iconic," and "authentic" local gems, ensuring high-quality recommendations.
 - **Budget-Aware Planning**: If a generated itinerary exceeds the user's specified budget, the app offers a one-click option to have the AI find cheaper alternatives.
+- **Weather Information**: The itinerary view includes a display for current weather conditions for the destination (currently using mock data).
+- **Seamless Booking (In Progress)**: The UI includes placeholder buttons for booking individual activities or an entire trip, laying the groundwork for future end-to-end booking capabilities.
 - **Interactive UI**: The application features a modern, responsive interface with carousels for place suggestions and interactive forms.
 
 ## Tech Stack
