@@ -7,7 +7,7 @@ export function Header() {
         <div className="flex items-center gap-2">
           <Map className="h-7 w-7 text-primary" />
           <span className="font-headline text-xl font-semibold tracking-wide">
-            VayagerAI
+            VoyagerAI
           </span>
         </div>
       </div>
