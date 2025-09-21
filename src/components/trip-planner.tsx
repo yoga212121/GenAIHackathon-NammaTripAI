@@ -22,10 +22,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
 
 const formSchema = z.object({
   destinations: z.string().min(3, "Please enter at least one destination."),
-  budget: z.coerce.number().min(1, "Budget must be greater than 0."),
+  budget: z.array(z.number()).length(2, "Budget range is required."),
   duration: z.coerce.number().min(1, "Duration must be at least 1 day."),
   interests: z.string().min(3, "Please list at least one interest."),
   currency: z.string().min(3).max(3),
@@ -43,19 +44,26 @@ export function TripPlanner({ onPlannerSubmit }: TripPlannerProps) {
     resolver: zodResolver(formSchema),
     defaultValues: {
       destinations: "New York",
-      budget: 1000,
+      budget: [500, 2000],
       duration: 7,
-      interests: "beaches, hiking, food",
+      interests: "museums, parks, food",
       currency: "USD",
     },
   });
+
+  const budgetValue = form.watch("budget");
+  const currencyValue = form.watch("currency");
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     try {
       const results = await getDestinations({
-        ...values,
+        destinations: values.destinations,
+        budgetMin: values.budget[0],
+        budgetMax: values.budget[1],
+        duration: values.duration,
         interests: values.interests.split(",").map((i) => i.trim()),
+        currency: values.currency,
       });
       onPlannerSubmit(results);
     } catch (error) {
@@ -76,7 +84,7 @@ export function TripPlanner({ onPlannerSubmit }: TripPlannerProps) {
           Searching for destinations...
         </h2>
         <p className="text-muted-foreground mt-2">
-          Our AI is curating a list of places just for you.
+          Our AI is curating a list of popular places just for you.
         </p>
       </Card>
     );
@@ -91,7 +99,7 @@ export function TripPlanner({ onPlannerSubmit }: TripPlannerProps) {
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
              <FormField
               control={form.control}
               name="destinations"
@@ -105,43 +113,55 @@ export function TripPlanner({ onPlannerSubmit }: TripPlannerProps) {
                 </FormItem>
               )}
             />
-            <FormItem>
-              <FormLabel>Your Budget</FormLabel>
-              <div className="flex gap-2">
-                <FormField
-                  control={form.control}
-                  name="budget"
-                  render={({ field }) => (
-                     <FormControl>
-                        <Input type="number" placeholder="e.g., 1500" {...field} />
-                      </FormControl>
-                  )}
-                />
-                 <FormField
-                    control={form.control}
-                    name="currency"
-                    render={({ field }) => (
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger className="w-[120px]">
-                            <SelectValue placeholder="Currency" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="USD">USD</SelectItem>
-                          <SelectItem value="EUR">EUR</SelectItem>
-                          <SelectItem value="GBP">GBP</SelectItem>
-                          <SelectItem value="JPY">JPY</SelectItem>
-                          <SelectItem value="CAD">CAD</SelectItem>
-                          <SelectItem value="AUD">AUD</SelectItem>
-                          <SelectItem value="INR">INR</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
-              </div>
-               <FormMessage>{form.formState.errors.budget?.message}</FormMessage>
-            </FormItem>
+            <FormField
+              control={form.control}
+              name="budget"
+              render={({ field }) => (
+                <FormItem>
+                  <div className="flex justify-between items-center">
+                    <FormLabel>Your Budget Range</FormLabel>
+                     <div className="flex items-center gap-2">
+                        <span className="font-semibold text-primary text-sm">
+                           {new Intl.NumberFormat('en-US', { style: 'currency', currency: currencyValue, minimumFractionDigits: 0 }).format(budgetValue[0])} - {new Intl.NumberFormat('en-US', { style: 'currency', currency: currencyValue, minimumFractionDigits: 0 }).format(budgetValue[1])}
+                        </span>
+                        <FormField
+                            control={form.control}
+                            name="currency"
+                            render={({ field }) => (
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                <SelectTrigger className="w-[100px]">
+                                    <SelectValue placeholder="Currency" />
+                                </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                <SelectItem value="USD">USD</SelectItem>
+                                <SelectItem value="EUR">EUR</SelectItem>
+                                <SelectItem value="GBP">GBP</SelectItem>
+                                <SelectItem value="JPY">JPY</SelectItem>
+                                <SelectItem value="CAD">CAD</SelectItem>
+                                <SelectItem value="AUD">AUD</SelectItem>
+                                <SelectItem value="INR">INR</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            )}
+                        />
+                     </div>
+                  </div>
+                  <FormControl>
+                     <Slider
+                        min={0}
+                        max={10000}
+                        step={100}
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        className="py-2"
+                     />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={form.control}
