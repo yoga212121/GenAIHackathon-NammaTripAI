@@ -10,6 +10,17 @@ const PHOTO_URL = 'https://maps.googleapis.com/maps/api/place/photo';
 const TEXT_SEARCH_URL = 'https://maps.googleapis.com/maps/api/place/textsearch/json';
 
 
+// Common headers for Google Maps API requests
+const AXIOS_CONFIG = {
+  headers: {
+    'Content-Type': 'application/json',
+    'X-Goog-Api-Key': API_KEY,
+    // It's a good practice to identify your application
+    'X-Goog-FieldMask': 'places.name,places.placeId',
+  },
+};
+
+
 /**
  * Searches for places using the Google Places Text Search API.
  * @param query The search query (e.g., "restaurants in New York").
@@ -18,6 +29,7 @@ const TEXT_SEARCH_URL = 'https://maps.googleapis.com/maps/api/place/textsearch/j
 export async function searchPlaces(query: string): Promise<{ name: string; place_id: string }[]> {
   if (!API_KEY || API_KEY === 'YOUR_API_KEY') {
     console.error('Google Places API key is not configured. Set the GEMINI_API_KEY environment variable.');
+    // Return empty array to prevent breaking the flow. The AI can handle this.
     return [];
   }
 
@@ -28,9 +40,9 @@ export async function searchPlaces(query: string): Promise<{ name: string; place
         key: API_KEY,
       },
     });
-
-    if (response.data.status !== 'OK') {
-      console.warn(`Text search for query "${query}" failed with status: ${response.data.status}`);
+    
+    if (response.data.status !== 'OK' || !response.data.results) {
+      console.warn(`Text search for query "${query}" returned status: ${response.data.status}. No results found.`);
       return [];
     }
     

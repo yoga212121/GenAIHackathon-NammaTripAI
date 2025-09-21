@@ -10,7 +10,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import { getPlaceImageUrl } from './placesService';
+import { getPlaceImageUrl, searchPlaces } from './placesService';
 
 const SuggestDestinationsInputSchema = z.object({
   destinations: z.string().describe('The destination(s) the user is interested in.'),
@@ -46,23 +46,52 @@ export async function suggestDestinationsBasedOnPreferences(
   return suggestDestinationsBasedOnPreferencesFlow(input);
 }
 
+// Define a tool for the AI to find real-world destinations
+const findDestinationsTool = ai.defineTool(
+  {
+    name: 'findRealWorldDestinations',
+    description: "Finds real-world travel destinations, cities, or points of interest that match a user's interests. Use this to discover potential places to suggest.",
+    inputSchema: z.object({
+      query: z.string().describe("The search query, combining user interests and desired locations. For example: 'art museums in Italy' or 'best hiking trails in the Alps' or 'beaches in the Caribbean'."),
+    }),
+    outputSchema: z.string().describe('A comma-separated list of up to 5 place names that match the query, or a message indicating that no places were found.'),
+  },
+  async (input) => {
+    const places = await searchPlaces(input.query);
+    if (!places || places.length === 0) {
+      return 'No places found matching the query.';
+    }
+    // Return a simple string list for the AI to process.
+    return places.map(p => p.name).join(', ');
+  }
+);
+
+
 const prompt = ai.definePrompt({
   name: 'suggestDestinationsPrompt',
   input: { schema: SuggestDestinationsInputSchema },
   output: { schema: SuggestDestinationsOutputSchema },
-  prompt: `Suggest three travel destinations based on the user's preferences.
+  tools: [findDestinationsTool],
+  prompt: `You are a travel expert. Your goal is to suggest three travel destinations based on the user's preferences.
 
-Destinations: {{{destinations}}}
+IMPORTANT: You MUST use the 'findRealWorldDestinations' tool to find real places to suggest. Do not rely on your general knowledge.
+1. Create a search query for the tool by combining the user's interests (e.g., {{{interests}}}) and their desired destination (e.g., {{{destinations}}}).
+2. Call the 'findRealWorldDestinations' tool with this query.
+3. Use the list of places returned by the tool as the basis for your suggestions.
+4. For each suggestion, provide a short description, an estimated price, duration, and a relevant imageHint.
+
+User Preferences:
+Destination Focus: {{{destinations}}}
 Budget: {{{budget}}} {{{currency}}}
 Duration: {{{duration}}} days
 Interests: {{{interests}}}
 
-Provide a list of destinations with a short description, an estimated price and duration, and a relevant imageHint for each destination.
-The imageUrl field can be an empty string, as it will be populated by a different service.
-The imageHint should be one or two keywords that accurately describe the destination, for example: "Eiffel Tower" or "Bali riceterrace".
-The estimated price should be in the requested currency: {{{currency}}}.
-Important: For each destination object in the output array, you MUST include a "currency" field with the value "{{{currency}}}".
-Format the output as a valid JSON array of objects matching the output schema.
+Instructions:
+- The imageUrl field can be an empty string, as it will be populated later.
+- The imageHint should be one or two keywords that accurately describe the destination, for example: "Eiffel Tower" or "Bali riceterrace".
+- The estimated price for each suggestion MUST be in the requested currency: {{{currency}}}.
+- For each destination object in the output array, you MUST include a "currency" field with the value "{{{currency}}}".
+- Format the output as a valid JSON array of objects matching the output schema.
 `,
 });
 
