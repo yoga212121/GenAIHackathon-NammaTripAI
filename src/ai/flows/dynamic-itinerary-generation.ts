@@ -50,16 +50,12 @@ Destinations: {{{destinations}}}
 Budget: {{{budget}}}
 Timeline: {{{timeline}}}
 Interests: {{{interests}}}
+{{#if selections}}
 Selections: {{{selections}}}
+{{/if}}
 
 Create a detailed itinerary, including estimated prices and times for each activity. Return the itinerary, total price, and total time.
-
-Format the response as a JSON object:
-{
-  "itinerary": "...",
-  "totalPrice": 0,
-  "totalTime": "..."
-}
+The response should be in a valid JSON format.
 `,
 });
 
@@ -71,6 +67,9 @@ const generateItineraryFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await prompt(input);
-    return output!;
+    if (!output) {
+      throw new Error('AI did not return a valid itinerary output.');
+    }
+    return output;
   }
 );

@@ -27,7 +27,7 @@ export async function runQuiz(
   try {
     const result = await personalizedDestinationQuiz(input);
     if (!result || !result.suggestedDestination) {
-      throw new Error("AI returned an invalid or empty response.");
+      throw new Error("AI returned an invalid or empty response for the quiz.");
     }
     return result;
   } catch (error) {
@@ -47,7 +47,10 @@ export async function getDestinations(
     return result;
   } catch (error) {
     console.error("Error in getDestinations:", error);
-    throw new Error("Failed to get destination suggestions from AI.");
+    if (error instanceof Error) {
+        throw new Error(`Failed to get destination suggestions from AI. Details: ${error.message}`);
+    }
+    throw new Error("An unknown error occurred while fetching destination suggestions.");
   }
 }
 
@@ -56,10 +59,16 @@ export async function getItinerary(
 ): Promise<GenerateItineraryOutput> {
   try {
     const result = await generateItinerary(input);
+    if (!result || !result.itinerary) {
+        throw new Error("AI returned an empty or invalid itinerary.");
+    }
     return result;
   } catch (error) {
     console.error("Error in getItinerary:", error);
-    throw new Error("Failed to generate itinerary from AI.");
+    if (error instanceof Error) {
+        throw new Error(`Failed to generate itinerary from AI. Details: ${error.message}`);
+    }
+    throw new Error("An unknown error occurred while generating the itinerary.");
   }
 }
 
@@ -71,6 +80,9 @@ export async function getAdjustedItinerary(
     return result;
   } catch (error) {
     console.error("Error in getAdjustedItinerary:", error);
-    throw new Error("Failed to adjust itinerary from AI.");
+    if (error instanceof Error) {
+        throw new Error(`Failed to adjust itinerary from AI. Details: ${error.message}`);
+    }
+    throw new Error("An unknown error occurred while adjusting the itinerary.");
   }
 }
