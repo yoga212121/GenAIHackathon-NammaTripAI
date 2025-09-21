@@ -27,15 +27,15 @@ export async function runQuiz(
   try {
     const result = await personalizedDestinationQuiz(input);
     if (!result || !result.suggestedDestination) {
-      throw new Error("AI returned an invalid response.");
+      throw new Error("AI returned an invalid or empty response.");
     }
     return result;
   } catch (error) {
     console.error("Error in runQuiz action:", error);
     if (error instanceof Error) {
-      throw new Error(`Failed to get quiz results from AI: ${error.message}`);
+      throw new Error(`Failed to get quiz results from AI. Details: ${error.message}`);
     }
-    throw new Error("Failed to get quiz results from AI due to an unknown error.");
+    throw new Error("An unknown error occurred while fetching quiz results from the AI.");
   }
 }
 
