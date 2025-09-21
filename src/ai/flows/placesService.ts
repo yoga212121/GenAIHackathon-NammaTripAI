@@ -7,6 +7,44 @@ const API_KEY = process.env.GEMINI_API_KEY;
 
 const FIND_PLACE_URL = 'https://maps.googleapis.com/maps/api/place/findplacefromtext/json';
 const PHOTO_URL = 'https://maps.googleapis.com/maps/api/place/photo';
+const TEXT_SEARCH_URL = 'https://maps.googleapis.com/maps/api/place/textsearch/json';
+
+
+/**
+ * Searches for places using the Google Places Text Search API.
+ * @param query The search query (e.g., "restaurants in New York").
+ * @returns A promise that resolves to an array of place results.
+ */
+export async function searchPlaces(query: string): Promise<{ name: string; place_id: string }[]> {
+  if (!API_KEY || API_KEY === 'YOUR_API_KEY') {
+    console.error('Google Places API key is not configured. Set the GEMINI_API_KEY environment variable.');
+    return [];
+  }
+
+  try {
+    const response = await axios.get(TEXT_SEARCH_URL, {
+      params: {
+        query: query,
+        key: API_KEY,
+      },
+    });
+
+    if (response.data.status !== 'OK') {
+      console.warn(`Text search for query "${query}" failed with status: ${response.data.status}`);
+      return [];
+    }
+    
+    // Return a simplified list of places for the AI to use.
+    return response.data.results.slice(0, 5).map((place: any) => ({
+      name: place.name,
+      place_id: place.place_id,
+    }));
+
+  } catch (error) {
+    console.error(`Failed to search places for query "${query}":`, error);
+    return [];
+  }
+}
 
 /**
  * Finds a place using the Google Places API and returns a public URL for its primary photo.

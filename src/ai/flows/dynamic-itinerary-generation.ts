@@ -2,6 +2,7 @@
 
 /**
  * @fileOverview Generates a personalized trip itinerary based on user preferences, budget, and timeline.
+ * It uses a tool to search for places on Google Maps to create a more accurate and relevant itinerary.
  *
  * - generateItinerary - A function that generates the personalized itinerary.
  * - GenerateItineraryInput - The input type for the generateItinerary function.
@@ -10,11 +11,12 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import {searchPlaces} from './placesService';
 
 const GenerateItineraryInputSchema = z.object({
   destinations: z
     .string()
-    .describe('A list of destinations the user wants to visit.'),
+    .describe('The destination the user wants to visit (e.g., city, region).'),
   budget: z.number().describe('The user specified budget for the trip.'),
   timeline: z
     .string()
@@ -22,12 +24,17 @@ const GenerateItineraryInputSchema = z.object({
     .describe('The preferred trip duration, e.g., 3 days, 1 week.'),
   interests: z
     .string()
-    .describe('The interests of the user for this trip, e.g., hiking, museums, food.'),
+    .describe(
+      'The interests of the user for this trip, e.g., hiking, museums, food.'
+    ),
   selections: z
     .string()
     .optional()
     .describe('A list of user selected places.'),
-  currency: z.string().optional().describe('The currency of the budget (e.g., USD, EUR).'),
+  currency: z
+    .string()
+    .optional()
+    .describe('The currency of the budget (e.g., USD, EUR).'),
 });
 export type GenerateItineraryInput = z.infer<typeof GenerateItineraryInputSchema>;
 
@@ -36,32 +43,66 @@ const GenerateItineraryOutputSchema = z.object({
   totalPrice: z.number().describe('The estimated total price of the itinerary.'),
   totalTime: z.string().describe('The estimated total time of the itinerary.'),
 });
-export type GenerateItineraryOutput = z.infer<typeof GenerateItineraryOutputSchema>;
+export type GenerateItineraryOutput = z.infer<
+  typeof GenerateItineraryOutputSchema
+>;
 
-export async function generateItinerary(input: GenerateItineraryInput): Promise<GenerateItineraryOutput> {
+export async function generateItinerary(
+  input: GenerateItineraryInput
+): Promise<GenerateItineraryOutput> {
   return generateItineraryFlow(input);
 }
 
-const prompt = ai.definePrompt(
+// Define a tool for the AI to search for places
+const findPlacesTool = ai.defineTool(
   {
-    name: 'generateItineraryPrompt',
-    input: { schema: GenerateItineraryInputSchema },
-    output: { schema: GenerateItineraryOutputSchema },
-    prompt: `You are a travel planning expert. Given the following information, create a personalized travel itinerary.
+    name: 'findPlacesForItinerary',
+    description:
+      'Finds relevant places, attractions, or restaurants for a travel itinerary based on a query and location. Use this to discover points of interest that match the user\'s interests.',
+    inputSchema: z.object({
+      query: z.string().describe("The search query. Should combine user interests with the destination. For example: 'museums in Paris' or 'best dosa in Bengaluru'."),
+    }),
+    outputSchema: z.string().describe('A comma-separated list of up to 5 place names that match the query, or a message indicating that no places were found.'),
+  },
+  async (input) => {
+    const places = await searchPlaces(input.query);
+    if (!places || places.length === 0) {
+      return 'No places found matching the query.';
+    }
+    // Return a simple string list for the AI to process.
+    return places.map(p => p.name).join(', ');
+  }
+);
 
+
+const prompt = ai.definePrompt({
+  name: 'generateItineraryPrompt',
+  input: {schema: GenerateItineraryInputSchema},
+  output: {schema: GenerateItineraryOutputSchema},
+  tools: [findPlacesTool],
+  prompt: `You are a travel planning expert. Your primary task is to create a personalized travel itinerary.
+
+IMPORTANT: You MUST use the 'findPlacesForItinerary' tool to discover real-world places that align with the user's interests for the given destination. Do not rely on your general knowledge alone. Make several tool calls to find different types of places (e.g., one for museums, one for restaurants, one for parks).
+
+User Preferences:
 Destinations: {{{destinations}}}
 Budget: {{{budget}}} {{{currency}}}
 Timeline: {{{timeline}}}
 Interests: {{{interests}}}
 {{#if selections}}
-Selections: {{{selections}}}
+User's pre-selected places: {{{selections}}}
 {{/if}}
 
-Create a detailed itinerary, including estimated prices and times for each activity. The prices should be in {{{currency}}}.
-Return the itinerary, total price, and total time.
-The response should be in a valid JSON format.`,
-  },
-);
+Instructions:
+1.  Analyze the user's interests (e.g., 'hiking, museums, food').
+2.  For each interest, call the 'findPlacesForItinerary' tool with a specific query (e.g., 'hiking trails near {{{destinations}}}', 'museums in {{{destinations}}}').
+3.  Use the places returned by the tool to construct a detailed day-by-day itinerary.
+4.  The itinerary should include estimated prices and times for each activity. Ensure the total price is within the user's budget.
+5.  All prices in the generated itinerary MUST be in the user's specified currency: {{{currency}}}.
+6.  Return the final itinerary, the calculated total price, and the total time.
+
+The response must be a valid JSON object matching the output schema.`,
+});
 
 const generateItineraryFlow = ai.defineFlow(
   {

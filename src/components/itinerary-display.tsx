@@ -130,6 +130,12 @@ export default function ItineraryDisplay({
   const displayPrice = adjustedItinerary?.revisedCost || itinerary.totalPrice;
   const displayTime = itinerary.totalTime;
 
+  const formattedPrice = new Intl.NumberFormat(undefined, {
+    style: 'currency',
+    currency: params.currency || 'USD',
+    minimumFractionDigits: 0,
+  }).format(displayPrice);
+
   return (
     <Card className="w-full max-w-3xl animate-in fade-in-50">
       <CardHeader>
@@ -151,7 +157,7 @@ export default function ItineraryDisplay({
                 <AlertTriangle className="h-4 w-4" />
                 <AlertTitle>Budget Exceeded!</AlertTitle>
                 <AlertDescription className="flex items-center justify-between">
-                    <span>This plan costs ${itinerary.totalPrice}, which is over your ${params.budget} budget.</span>
+                    <span>This plan costs {formattedPrice}, which is over your budget.</span>
                     <Button size="sm" onClick={handleAdjustBudget} disabled={isAdjusting}>
                         {isAdjusting ? <Loader2 className="h-4 w-4 animate-spin"/> : <Sparkles className="mr-2 h-4 w-4" />}
                         Find Cheaper Options
@@ -177,7 +183,7 @@ export default function ItineraryDisplay({
         <div className="grid grid-cols-2 gap-4 text-center">
             <div className="p-2 rounded-lg bg-secondary">
                 <div className="text-sm font-semibold text-muted-foreground">Total Price</div>
-                <div className="font-headline text-xl font-bold text-primary">${displayPrice.toLocaleString()}</div>
+                <div className="font-headline text-xl font-bold text-primary">{formattedPrice}</div>
             </div>
              <div className="p-2 rounded-lg bg-secondary">
                 <div className="text-sm font-semibold text-muted-foreground">Total Time</div>
