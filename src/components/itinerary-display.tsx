@@ -52,12 +52,12 @@ const WeatherDisplay = () => (
   </div>
 );
 
-// A simple parser to convert markdown bold to HTML strong tags
+// A simple parser to convert markdown to HTML
 const parseMarkdown = (text: string) => {
-    const boldPattern = /\*\*(.*?)\*\*/g;
     const html = text
-        .replace(boldPattern, '<strong>$1</strong>')
-        .replace(/\n/g, '<br />');
+        .replace(/^### (.*$)/gim, '<h3>$1</h3>') // Headings
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold
+        .replace(/\n/g, '<br />'); // New lines
     return { __html: html };
 }
 
@@ -231,8 +231,8 @@ export default function ItineraryDisplay({
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <CarouselPrevious className="absolute left-[-50px] top-1/2 -translate-y-1/2" />
-            <CarouselNext className="absolute right-[-50px] top-1/2 -translate-y-1/2" />
+            <CarouselPrevious className="absolute left-[-50px] top-1/2 -translate-y-1/2 hidden md:inline-flex" />
+            <CarouselNext className="absolute right-[-50px] top-1/2 -translate-y-1/2 hidden md:inline-flex" />
           </Carousel>
         )}
 
