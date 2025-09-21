@@ -80,6 +80,24 @@
       "imageHint": "city walking"
     },
     {
+      "id": "quiz-scope-local",
+      "description": "A map of a local city with pins in it.",
+      "imageUrl": "https://picsum.photos/seed/localmap/600/400",
+      "imageHint": "city map"
+    },
+    {
+      "id": "quiz-scope-domestic",
+      "description": "A map of a country, like the USA.",
+      "imageUrl": "https://picsum.photos/seed/countrymap/600/400",
+      "imageHint": "country map"
+    },
+    {
+      "id": "quiz-scope-international",
+      "description": "A globe showing multiple continents.",
+      "imageUrl": "https://picsum.photos/seed/worldtravel/600/400",
+      "imageHint": "world globe"
+    },
+    {
       "id": "dest-paris",
       "description": "The Eiffel Tower in Paris, France.",
       "imageUrl": "https://picsum.photos/seed/201/800/600",

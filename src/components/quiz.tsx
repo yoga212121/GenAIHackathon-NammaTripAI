@@ -76,6 +76,15 @@ const quizQuestions: QuizQuestion[] = [
         { value: "Friends", label: "Friends", imageId: "quiz-companion-friends" },
     ],
   },
+  {
+    id: "question5",
+    title: "What's your desired travel scope?",
+    options: [
+        { value: "Local", label: "Local (City/State)", imageId: "quiz-scope-local" },
+        { value: "Domestic", label: "Domestic (Country)", imageId: "quiz-scope-domestic" },
+        { value: "International", label: "International", imageId: "quiz-scope-international" },
+    ],
+  },
 ];
 
 type QuizProps = {
