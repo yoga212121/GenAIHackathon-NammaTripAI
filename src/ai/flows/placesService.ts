@@ -16,7 +16,7 @@ const AXIOS_CONFIG = {
     'Content-Type': 'application/json',
     'X-Goog-Api-Key': API_KEY,
     // It's a good practice to identify your application
-    'X-Goog-FieldMask': 'places.name,places.placeId',
+    'X-Goog-FieldMask': 'places.name,places.placeId,places.rating',
   },
 };
 
@@ -24,9 +24,9 @@ const AXIOS_CONFIG = {
 /**
  * Searches for places using the Google Places Text Search API.
  * @param query The search query (e.g., "restaurants in New York").
- * @returns A promise that resolves to an array of place results.
+ * @returns A promise that resolves to an array of place results including name, id, and rating.
  */
-export async function searchPlaces(query: string): Promise<{ name: string; place_id: string }[]> {
+export async function searchPlaces(query: string): Promise<{ name: string; place_id: string; rating: number | string; }[]> {
   if (!API_KEY || API_KEY === 'YOUR_API_KEY') {
     console.error('Google Places API key is not configured. Set the GEMINI_API_KEY environment variable.');
     // Return empty array to prevent breaking the flow. The AI can handle this.
@@ -50,6 +50,7 @@ export async function searchPlaces(query: string): Promise<{ name: string; place
     return response.data.results.slice(0, 5).map((place: any) => ({
       name: place.name,
       place_id: place.place_id,
+      rating: place.rating || 'N/A',
     }));
 
   } catch (error) {

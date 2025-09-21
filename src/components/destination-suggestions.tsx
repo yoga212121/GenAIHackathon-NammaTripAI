@@ -17,7 +17,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Star } from "lucide-react";
 import type {
   PersonalizedDestinationQuizOutput,
   SuggestDestinationsOutput,
@@ -48,61 +48,25 @@ export function DestinationSuggestions({
       interests: "as per suggestion",
       currency: "USD", // Default currency, will be refined in next step.
     };
-    onPlanTrip(destination.destination || destination.suggestedDestination, plannerInput);
+    onPlanTrip(destination.destination, plannerInput);
   };
+  
+  const results = quizResult || plannerResults;
+  const isQuizResult = !!quizResult;
 
-  if (quizResult) {
-    const imageSeed = quizResult.imageHint.replace(/\s/g, "");
-    return (
-      <Card className="w-full max-w-2xl">
-        <CardHeader className="text-center">
-          <CardTitle className="font-headline text-3xl text-primary">
-            Your Personalized Suggestion!
-          </CardTitle>
-          <CardDescription>
-            Based on your quiz answers, we think you'll love:
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="text-center">
-          <h3 className="font-headline text-4xl font-bold mb-2">
-            {quizResult.suggestedDestination}
-          </h3>
-          <Image
-            src={quizResult.imageUrl || `https://picsum.photos/seed/${imageSeed}/800/400`}
-            alt={quizResult.suggestedDestination}
-            width={800}
-            height={400}
-            className="rounded-lg object-cover w-full aspect-video my-4"
-            data-ai-hint={quizResult.imageHint}
-          />
-          <p className="text-lg text-foreground/90 mt-4">{quizResult.reasoning}</p>
-        </CardContent>
-        <CardFooter className="flex flex-col gap-4">
-          <Button
-            size="lg"
-            className="w-full"
-            onClick={() => handlePlanTripClick(quizResult)}
-          >
-            Let's Plan This Trip!
-          </Button>
-          <Button variant="ghost" onClick={onBack}>
-            <ArrowLeft className="mr-2 h-4 w-4" /> Start Over
-          </Button>
-        </CardFooter>
-      </Card>
-    );
-  }
-
-  if (plannerResults && plannerResults.length > 0) {
+  if (results && results.length > 0) {
     return (
       <div className="w-full max-w-4xl">
         <div className="text-center mb-8">
-            <h2 className="font-headline text-3xl font-bold">Here are some suggestions for you</h2>
+            <h2 className="font-headline text-3xl font-bold">{isQuizResult ? 'Here are some personalized suggestions' : 'Here are some suggestions for you'}</h2>
         </div>
         <Carousel className="w-full">
           <CarouselContent>
-            {plannerResults.map((dest, index) => {
+            {results.map((dest, index) => {
               const imageSeed = dest.imageHint.replace(/\s/g, "");
+              const destinationName = isQuizResult ? dest.destination : (dest as any).destination;
+              const description = isQuizResult ? dest.reasoning : dest.description;
+
               return (
               <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
                 <div className="p-1 h-full">
@@ -110,7 +74,7 @@ export function DestinationSuggestions({
                     <CardHeader className="p-0">
                       <Image
                         src={dest.imageUrl || `https://picsum.photos/seed/${imageSeed}/600/400`}
-                        alt={dest.destination}
+                        alt={destinationName}
                         width={600}
                         height={400}
                         className="w-full h-48 object-cover"
@@ -118,13 +82,26 @@ export function DestinationSuggestions({
                       />
                     </CardHeader>
                     <div className="p-4 flex flex-col flex-grow">
-                        <CardTitle className="font-headline text-xl mb-2">{dest.destination}</CardTitle>
-                        <CardDescription className="flex-grow">{dest.description}</CardDescription>
+                        <CardTitle className="font-headline text-xl mb-2">{destinationName}</CardTitle>
+                        <CardDescription className="flex-grow">{description}</CardDescription>
                     </div>
                     <CardFooter className="p-4 pt-0 flex flex-col items-start gap-4">
                         <div className="text-sm text-muted-foreground w-full">
-                            <div className="flex justify-between"><span>Est. Price:</span> <span className="font-semibold text-foreground">{new Intl.NumberFormat(undefined, { style: 'currency', currency: dest.currency || 'USD', minimumFractionDigits: 0 }).format(dest.estimatedPrice)}</span></div>
-                            <div className="flex justify-between"><span>Est. Duration:</span> <span className="font-semibold text-foreground">{dest.estimatedDuration} days</span></div>
+                           {!isQuizResult && (
+                             <>
+                                <div className="flex justify-between"><span>Est. Price:</span> <span className="font-semibold text-foreground">{new Intl.NumberFormat(undefined, { style: 'currency', currency: (dest as any).currency || 'USD', minimumFractionDigits: 0 }).format((dest as any).estimatedPrice)}</span></div>
+                                <div className="flex justify-between"><span>Est. Duration:</span> <span className="font-semibold text-foreground">{(dest as any).estimatedDuration} days</span></div>
+                             </>
+                           )}
+                           {dest.rating && (
+                             <div className="flex justify-between items-center w-full mt-2">
+                               <span>Rating:</span>
+                               <span className="font-semibold text-foreground flex items-center gap-1">
+                                 <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
+                                 {dest.rating}
+                               </span>
+                             </div>
+                           )}
                         </div>
                         <Button className="w-full" onClick={() => handlePlanTripClick(dest)}>Plan this trip</Button>
                     </CardFooter>

@@ -12,7 +12,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import { getPlaceImageUrl } from './placesService';
+import { getPlaceImageUrl, searchPlaces } from './placesService';
 
 
 const PersonalizedDestinationQuizInputSchema = z.object({
@@ -47,20 +47,16 @@ export type PersonalizedDestinationQuizInput = z.infer<
   typeof PersonalizedDestinationQuizInputSchema
 >;
 
-const PersonalizedDestinationQuizOutputSchema = z.object({
-  suggestedDestination: z
-    .string()
-    .describe(
-      "A destination that matches the user's interests and personality based on their quiz answers."
-    ),
-  reasoning: z
-    .string()
-    .describe(
-      "Explanation of why the destination matches the user's quiz answers."
-    ),
-    imageHint: z.string().describe('One or two keywords for a relevant placeholder image, e.g., "botanical garden".'),
-    imageUrl: z.string().describe('URL of an image of the destination. This will be populated by a separate service.'),
+const SingleDestinationSchema = z.object({
+  destination: z.string().describe("A destination that matches the user's interests and personality based on their quiz answers."),
+  reasoning: z.string().describe("Explanation of why the destination matches the user's quiz answers."),
+  imageHint: z.string().describe('One or two keywords for a relevant placeholder image, e.g., "Lalbagh Garden" or "Eiffel Tower".'),
+  imageUrl: z.string().describe('URL of an image of the destination. This will be populated by a separate service.'),
+  rating: z.union([z.number(), z.string()]).describe('The rating of the destination, from 1 to 5, or N/A if not available.'),
 });
+
+const PersonalizedDestinationQuizOutputSchema = z.array(SingleDestinationSchema);
+
 
 export type PersonalizedDestinationQuizOutput = z.infer<
   typeof PersonalizedDestinationQuizOutputSchema
@@ -72,37 +68,61 @@ export async function personalizedDestinationQuiz(
   return personalizedDestinationQuizFlow(input);
 }
 
+
+// Define a tool for the AI to search for places
+const findPlacesTool = ai.defineTool(
+  {
+    name: 'findPlacesForQuiz',
+    description:
+      'Finds relevant places, attractions, or restaurants for a user based on their quiz answers. Use this to discover points of interest that match the user\'s preferences.',
+    inputSchema: z.object({
+      query: z.string().describe("The search query. Construct this from the user's quiz answers. For example: 'parks in Bengaluru for families' or 'romantic restaurants in Paris'."),
+    }),
+    outputSchema: z.string().describe('A stringified JSON array of up to 5 places, each with a name, place_id, and rating. Returns an empty array string if no places are found.'),
+  },
+  async (input) => {
+    const places = await searchPlaces(input.query);
+    if (!places || places.length === 0) {
+      return '[]';
+    }
+    // Return a JSON string for the AI to process.
+    return JSON.stringify(places);
+  }
+);
+
+
 const prompt = ai.definePrompt(
   {
     name: 'personalizedDestinationQuizPrompt',
     input: { schema: PersonalizedDestinationQuizInputSchema },
-    output: { schema: z.object({
-        suggestedDestination: PersonalizedDestinationQuizOutputSchema.shape.suggestedDestination,
-        reasoning: PersonalizedDestinationQuizOutputSchema.shape.reasoning,
-        imageHint: PersonalizedDestinationQuizOutputSchema.shape.imageHint,
-    }) },
-    prompt: `Based on the user's answers to the following questions, suggest a travel destination that matches their interests and personality.
+    output: { schema: PersonalizedDestinationQuizOutputSchema },
+    tools: [findPlacesTool],
+    prompt: `You are a travel expert. Your goal is to suggest three travel destinations based on the user's quiz answers.
 
-Questions:
-1. What type of scenery appeals to you most? {{{question1}}}
-2. What is your preferred travel pace? {{{question2}}}
-3. What kind of activities do you enjoy on vacation? {{{question3}}}
-4. What is your ideal travel companion? {{{question4}}}
-5. What is your desired travel scope? {{{question5}}}
+IMPORTANT: You MUST use the 'findPlacesForQuiz' tool to find real places to suggest. Do not rely on your general knowledge.
+1. Synthesize the user's answers to create a descriptive search query. For example, if the user likes 'Culture' and 'City' and is traveling with a 'Partner', the query could be "historical sites in [userLocation]" or "romantic museums in [userLocation]".
+2. Call the 'findPlacesForQuiz' tool with this query.
+3. Use the list of places returned by the tool as the basis for your suggestions. If the tool returns fewer than three, suggest what you can.
+4. For each suggestion, provide a concise reasoning, a rating from the tool, and a relevant imageHint.
+
+Quiz Answers:
+1. Scenery: {{{question1}}}
+2. Pace: {{{question2}}}
+3. Activities: {{{question3}}}
+4. Companion: {{{question4}}}
+5. Scope: {{{question5}}}
 {{#if userLocation}}
-The user's location is: {{{userLocation}}}
+6. User's location: {{{userLocation}}}
 {{/if}}
 
-Consider these preferences and suggest ONE destination. Explain your reasoning in detail, connecting the user's answers to the suggested destination.
-Provide an 'imageHint' with one or two keywords that accurately describe the suggested destination for a placeholder image. For example: "Lalbagh Garden" or "Eiffel Tower".
 
 IMPORTANT LOCALIZATION RULES:
-- If the travel scope is "Local" and the user provides a city name (e.g., "Bengaluru"), you MUST suggest a neighborhood, park, museum, or point of interest WITHIN that city. Do not suggest another city.
-- If the travel scope is "Local" and the user provides a state or region (e.g., "Karnataka"), you may suggest a city or destination within that state/region.
-- If the travel scope is "Domestic" and a user location is provided, you MUST suggest a destination within the same country as the user's location.
+- If the travel scope is "Local" and the user provides a city name (e.g., "Bengaluru"), you MUST search for and suggest places (neighborhoods, parks, museums) WITHIN that city. Your tool query should be like 'historical monuments in Bengaluru'.
+- If the travel scope is "Domestic" and a user location is provided, you MUST suggest a destination within the same country. Your tool query should be like 'best beaches in [userCountry]'.
 - If the user selects "Domestic" or "Local" and has NOT provided a location, you MUST frame your suggestion as an example and state that you can provide a more tailored recommendation if they provide their location. For example: "For a domestic trip, a great city to explore is [City, Country]. If you provide your location, I can suggest a destination closer to you."
 
-Return a valid JSON object matching the output schema.
+The imageUrl field for each object in the array can be an empty string, as it will be populated later.
+Format the output as a valid JSON array of objects matching the output schema.
 `,
   },
 );
@@ -114,18 +134,20 @@ const personalizedDestinationQuizFlow = ai.defineFlow(
     outputSchema: PersonalizedDestinationQuizOutputSchema,
   },
   async (input) => {
-    const {output} = await prompt(input);
+    const {output: suggestions} = await prompt(input);
 
-    if (!output) {
+    if (!suggestions || suggestions.length === 0) {
       throw new Error('AI did not return a valid output.');
     }
     
-    // Enrich the result with a real image URL
-    const imageUrl = await getPlaceImageUrl(output.imageHint);
+    // Enrich each suggestion with a real image URL
+    const enrichedSuggestions = await Promise.all(
+        suggestions.map(async (suggestion) => {
+            const imageUrl = await getPlaceImageUrl(suggestion.imageHint);
+            return { ...suggestion, imageUrl: imageUrl || suggestion.imageUrl };
+        })
+    );
 
-    return {
-      ...output,
-      imageUrl: imageUrl,
-    };
+    return enrichedSuggestions;
   }
 );
