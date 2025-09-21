@@ -83,6 +83,9 @@ Questions:
 5. What is your desired travel scope? {{{question5}}}
 
 Consider these preferences and suggest ONE destination. Explain your reasoning in detail, connecting the user's answers to the suggested destination.
+
+IMPORTANT: If the user selects "Domestic" or "Local" for travel scope, you do not know their location. You MUST frame your suggestion as an example and state that you can provide a more tailored recommendation if they provide their country or region. For example: "For a domestic trip, a great city to explore is [City, Country]. If you provide your location, I can suggest a destination closer to you."
+
 Return a valid JSON object matching the output schema.
 `,
   },
