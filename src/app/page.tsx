@@ -14,8 +14,15 @@ import { Quiz } from "@/components/quiz";
 import { TripPlanner } from "@/components/trip-planner";
 import { DestinationSuggestions } from "@/components/destination-suggestions";
 import ItineraryDisplay from "@/components/itinerary-display";
+import { RefineTrip } from "@/components/refine-trip";
 
-type View = "start" | "quiz" | "planner" | "results" | "itinerary";
+type View =
+  | "start"
+  | "quiz"
+  | "planner"
+  | "results"
+  | "refine-trip"
+  | "itinerary";
 
 export default function Home() {
   const [view, setView] = useState<View>("start");
@@ -26,6 +33,7 @@ export default function Home() {
   const [selectedDestination, setSelectedDestination] = useState<string | null>(
     null
   );
+  const [initialInterests, setInitialInterests] = useState<string>("as per suggestion");
   const [itineraryParams, setItineraryParams] =
     useState<GenerateItineraryInput | null>(null);
 
@@ -41,17 +49,30 @@ export default function Home() {
     setView("results");
   };
 
-  const handlePlanTrip = (
+  const handleSelectDestination = (
     destination: string,
     plannerInput: Omit<GenerateItineraryInput, "destinations">
   ) => {
     setSelectedDestination(destination);
-    setItineraryParams({
-      ...plannerInput,
-      destinations: destination,
-    });
+    setInitialInterests(plannerInput.interests);
+    setView("refine-trip");
+  };
+
+  const handleRefineTrip = (details: {
+    budget: number;
+    duration: number;
+  }) => {
+    if (!selectedDestination) return;
+    const params: GenerateItineraryInput = {
+      destinations: selectedDestination,
+      budget: details.budget,
+      timeline: `${details.duration} days`,
+      interests: initialInterests,
+    };
+    setItineraryParams(params);
     setView("itinerary");
   };
+
 
   const handleReset = () => {
     setView("start");
@@ -73,12 +94,20 @@ export default function Home() {
           );
         }
         return null;
+      case "refine-trip":
+        return (
+          <RefineTrip
+            destination={selectedDestination!}
+            onSubmit={handleRefineTrip}
+            onBack={() => setView("results")}
+          />
+        );
       case "results":
         return (
           <DestinationSuggestions
             quizResult={quizResult}
             plannerResults={plannerResults}
-            onPlanTrip={handlePlanTrip}
+            onPlanTrip={handleSelectDestination}
             onBack={handleReset}
           />
         );
