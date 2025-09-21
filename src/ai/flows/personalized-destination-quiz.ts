@@ -72,19 +72,23 @@ Questions:
 Consider these preferences and suggest ONE destination. Explain your reasoning in detail, connecting the user's answers to the suggested destination.`,
 });
 
-export async function personalizedDestinationQuiz(
-  input: PersonalizedDestinationQuizInput
-): Promise<PersonalizedDestinationQuizOutput> {
-  console.log('personalizedDestinationQuiz flow started with input:', input);
-  try {
+const personalizedDestinationQuizFlow = ai.defineFlow(
+  {
+    name: 'personalizedDestinationQuizFlow',
+    inputSchema: PersonalizedDestinationQuizInputSchema,
+    outputSchema: PersonalizedDestinationQuizOutputSchema,
+  },
+  async (input) => {
     const {output} = await quizPrompt(input);
-    console.log('AI response received in flow:', output);
     if (!output) {
       throw new Error('AI did not return a valid output.');
     }
     return output;
-  } catch (e) {
-    console.error('Error within personalizedDestinationQuiz flow:', e);
-    throw e;
   }
+);
+
+export async function personalizedDestinationQuiz(
+  input: PersonalizedDestinationQuizInput
+): Promise<PersonalizedDestinationQuizOutput> {
+  return personalizedDestinationQuizFlow(input);
 }

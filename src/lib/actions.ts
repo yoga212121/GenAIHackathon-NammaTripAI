@@ -24,18 +24,18 @@ import {
 export async function runQuiz(
   input: PersonalizedDestinationQuizInput
 ): Promise<PersonalizedDestinationQuizOutput> {
-  console.log("runQuiz action started with input:", input);
   try {
     const result = await personalizedDestinationQuiz(input);
-    console.log("runQuiz action received result from AI:", result);
     if (!result || !result.suggestedDestination) {
-      console.error("AI returned invalid or empty result:", result);
       throw new Error("AI returned an invalid response.");
     }
     return result;
   } catch (error) {
     console.error("Error in runQuiz action:", error);
-    throw new Error("Failed to get quiz results from AI.");
+    if (error instanceof Error) {
+      throw new Error(`Failed to get quiz results from AI: ${error.message}`);
+    }
+    throw new Error("Failed to get quiz results from AI due to an unknown error.");
   }
 }
 
