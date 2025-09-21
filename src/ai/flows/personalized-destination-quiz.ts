@@ -78,6 +78,9 @@ const personalizedDestinationQuizFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await prompt(input);
-    return output!;
+    if (!output) {
+      throw new Error('The AI did not return a valid output.');
+    }
+    return output;
   }
 );
