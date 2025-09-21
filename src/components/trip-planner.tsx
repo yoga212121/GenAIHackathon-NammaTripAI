@@ -3,7 +3,6 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { getDestinations } from "@/lib/actions";
 import { useToast } from "@/hooks/use-toast";
 import type { GenerateItineraryInput } from "@/lib/types";
 
@@ -50,9 +49,9 @@ export function TripPlanner({ onPlannerSubmit }: TripPlannerProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      destinations: "New York",
-      budget: [20000, 80000],
-      duration: 7,
+      destinations: "",
+      budget: [2000, 8000],
+      duration: 1,
       interests: "museums, parks, food",
       currency: "INR",
     },
@@ -63,29 +62,6 @@ export function TripPlanner({ onPlannerSubmit }: TripPlannerProps) {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     try {
-      // The getDestinations action suggests multiple places.
-      // In this streamlined flow, we'll take the top suggestion and proceed.
-      const results = await getDestinations({
-        destinations: values.destinations,
-        budgetMin: values.budget[0],
-        budgetMax: values.budget[1],
-        duration: values.duration,
-        interests: values.interests.split(",").map((i) => i.trim()),
-        currency: values.currency,
-      });
-
-      if (!results || results.length === 0) {
-        toast({
-          variant: "destructive",
-          title: "No Suggestions Found",
-          description: "The AI could not find any destinations for your query. Please try different criteria.",
-        });
-        setIsLoading(false);
-        return;
-      }
-
-      const topDestination = results[0];
-      
       const plannerInput: Omit<GenerateItineraryInput, "destinations"> = {
         budget: values.budget[1], // Use max budget for the itinerary plan
         timeline: `${values.duration} days`,
@@ -93,13 +69,14 @@ export function TripPlanner({ onPlannerSubmit }: TripPlannerProps) {
         currency: values.currency,
       };
 
-      onPlannerSubmit(plannerInput, topDestination.destination);
+      // Directly use the user's input as the destination
+      onPlannerSubmit(plannerInput, values.destinations);
 
     } catch (error) {
       toast({
         variant: "destructive",
-        title: "AI Error",
-        description: (error as Error).message,
+        title: "Error",
+        description: "Could not generate itinerary. Please try again.",
       });
       setIsLoading(false);
     }
@@ -136,7 +113,7 @@ export function TripPlanner({ onPlannerSubmit }: TripPlannerProps) {
                 <FormItem>
                   <FormLabel>Destination(s)</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., Paris, Tokyo" {...field} />
+                    <Input placeholder="e.g., Paris, Tokyo, Bangalore" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -157,7 +134,7 @@ export function TripPlanner({ onPlannerSubmit }: TripPlannerProps) {
                             control={form.control}
                             name="currency"
                             render={({ field }) => (
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <Select onValuechange={field.onChange} defaultValue={field.value}>
                                 <FormControl>
                                 <SelectTrigger className="w-[100px]">
                                     <SelectValue placeholder="Currency" />
