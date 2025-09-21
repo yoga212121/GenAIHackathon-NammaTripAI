@@ -4,7 +4,6 @@ import { useState } from "react";
 import type {
   PersonalizedDestinationQuizOutput,
   SuggestDestinationsOutput,
-  GenerateItineraryOutput,
   GenerateItineraryInput,
 } from "@/lib/types";
 

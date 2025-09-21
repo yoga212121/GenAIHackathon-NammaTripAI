@@ -21,6 +21,7 @@ import { ArrowLeft } from "lucide-react";
 import type {
   PersonalizedDestinationQuizOutput,
   SuggestDestinationsOutput,
+  GenerateItineraryInput,
 } from "@/lib/types";
 
 type DestinationSuggestionsProps = {
@@ -28,7 +29,7 @@ type DestinationSuggestionsProps = {
   plannerResults: SuggestDestinationsOutput | null;
   onPlanTrip: (
     destination: string,
-    plannerInput: { budget: number; duration: number; interests: string }
+    plannerInput: Omit<GenerateItineraryInput, "destinations">
   ) => void;
   onBack: () => void;
 };
@@ -43,7 +44,7 @@ export function DestinationSuggestions({
     // This is a simplification. In a real app, you'd have the original form inputs.
     const plannerInput = {
       budget: destination.estimatedPrice || 2000,
-      duration: destination.estimatedDuration || 7,
+      timeline: `${destination.estimatedDuration || 7} days`,
       interests: "as per suggestion",
     };
     onPlanTrip(destination.destination || destination.suggestedDestination, plannerInput);

@@ -18,6 +18,7 @@ const GenerateItineraryInputSchema = z.object({
   budget: z.number().describe('The user specified budget for the trip.'),
   timeline: z
     .string()
+    .optional()
     .describe('The preferred trip duration, e.g., 3 days, 1 week.'),
   interests: z
     .string()
@@ -47,7 +48,8 @@ const generateItineraryFlow = ai.defineFlow(
     outputSchema: GenerateItineraryOutputSchema,
   },
   async (input) => {
-    const prompt = `You are a travel planning expert. Given the following information, create a personalized travel itinerary.
+    const {output} = await ai.generate({
+      prompt: `You are a travel planning expert. Given the following information, create a personalized travel itinerary.
 
 Destinations: ${input.destinations}
 Budget: ${input.budget}
@@ -57,9 +59,7 @@ ${input.selections ? `Selections: ${input.selections}` : ''}
 
 Create a detailed itinerary, including estimated prices and times for each activity. Return the itinerary, total price, and total time.
 The response should be in a valid JSON format.
-`;
-    const {output} = await ai.generate({
-      prompt: prompt,
+`,
       output: {
         schema: GenerateItineraryOutputSchema,
       },
