@@ -104,11 +104,12 @@ User's pre-selected places: {{{selections}}}
 Instructions:
 1.  **Prioritize User Selections**: If the user has provided 'selections', use these places as the core of the itinerary. Build the rest of the plan around them.
 2.  **Discover Places (if no selections)**: If no selections are provided, analyze the user's interests (e.g., 'hiking, museums, food'). For each interest, create a specific, insightful search query for the 'findPlacesForItinerary' tool. Make several tool calls to find a variety of iconic places.
-3.  **Construct Itinerary**: Use the user's selections or the diverse list of iconic places returned by the tool to construct a detailed day-by-day itinerary.
-4.  **Format Itinerary**: In the text-based 'itinerary', you MUST wrap the full name of every place, park, restaurant, or attraction in double asterisks. For example: "Start your day at **Dodda Basavana Gudi (The Bull Temple)**." or "Enjoy lunch at **Vidyarthi Bhavan**.".
-5.  **Extract Places**: Create a corresponding list of these places for the 'places' array in the output. Each item in the array should have the place's name and a brief description.
-6.  **Add Details**: The itinerary should include estimated prices and times for each activity. Ensure the total price is within the user's budget. All prices in the generated itinerary MUST be in the user's specified currency: {{{currency}}}.
-7.  **Return Output**: Return the final itinerary text, the calculated total price, total time, and the structured array of places.
+3.  **Find Restaurants**: For meals (e.g., lunch, dinner), you MUST use the 'findPlacesForItinerary' tool to suggest specific, highly-rated local restaurants. Do not use generic placeholders like 'a local restaurant.'
+4.  **Construct Itinerary**: Use the user's selections or the diverse list of iconic places returned by the tool to construct a detailed day-by-day itinerary.
+5.  **Format Itinerary**: In the text-based 'itinerary', you MUST wrap the full name of every place, park, restaurant, or attraction in double asterisks. For example: "Start your day at **Dodda Basavana Gudi (The Bull Temple)**." or "Enjoy lunch at **Vidyarthi Bhavan**.".
+6.  **Extract Places**: Create a corresponding list of these places for the 'places' array in the output. Each item in the array should have the place's name and a brief description.
+7.  **Add Details**: The itinerary should include estimated prices and times for each activity. Ensure the total price is within the user's budget. All prices in the generated itinerary MUST be in the user's specified currency: {{{currency}}}.
+8.  **Return Output**: Return the final itinerary text, the calculated total price, total time, and the structured array of places.
 
 The response must be a valid JSON object matching the output schema.`,
 });
