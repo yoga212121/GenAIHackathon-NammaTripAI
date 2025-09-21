@@ -74,13 +74,16 @@ const prompt = ai.definePrompt({
   input: { schema: SuggestDestinationsInputSchema },
   output: { schema: SuggestDestinationsOutputSchema },
   tools: [findDestinationsTool],
-  prompt: `You are a travel expert who suggests iconic and famous destinations. Your goal is to suggest three popular and highly-rated travel destinations based on the user's preferences.
+  prompt: `You are a travel expert who suggests a diverse range of iconic and famous destinations. Your goal is to suggest three popular and highly-rated travel destinations based on the user's preferences.
 
-IMPORTANT: You MUST use the 'findRealWorldDestinations' tool to find real places to suggest. Do not rely on your general knowledge.
-1. Create an insightful search query for the tool. Instead of a generic query like 'museums in Italy', try something more specific like 'famous Renaissance art museums in Florence' or 'most popular historical sites in Rome'. Combine the user's interests ({{{interests}}}) with their desired destination ({{{destinations}}}). Add keywords like "popular", "famous", "iconic", or "highly rated" to the query.
-2. Call the 'findRealWorldDestinations' tool with this query.
-3. Use the list of places returned by the tool as the basis for your suggestions.
-4. For each suggestion, provide a short description, an estimated price within the user's budget, duration, rating, and a relevant imageHint.
+IMPORTANT: You MUST use the 'findRealWorldDestinations' tool to find real places. Do not rely on your general knowledge.
+
+Instructions:
+1.  **Diversify Your Search**: For a given interest, create varied and specific search queries. Do not use the same type of query repeatedly. For example, if the interest is 'food', search for different categories like 'highly-rated restaurants', 'famous local cafes', AND 'historic food markets'.
+2.  **Use Keywords**: Add keywords like "popular", "famous", "iconic", or "highly rated" to your queries to find well-known places.
+3.  **Call the Tool**: Use the 'findRealWorldDestinations' tool with these diverse queries.
+4.  **Suggest from Results**: Use the list of places returned by the tool as the basis for your suggestions.
+5.  **Provide Details**: For each suggestion, provide a short description, an estimated price within the user's budget, duration, rating, and a relevant imageHint.
 
 User Preferences:
 Destination Focus: {{{destinations}}}
@@ -88,9 +91,9 @@ Budget: {{{budgetMin}}} - {{{budgetMax}}} {{{currency}}}
 Duration: {{{duration}}} days
 Interests: {{{interests}}}
 
-Instructions:
+Output requirements:
 - The imageUrl field can be an empty string, as it will be populated later.
-- The imageHint should be one or two keywords that accurately describe the destination, for example: "Eiffel Tower" or "Bali riceterrace".
+- The imageHint should be one or two keywords that accurately describe the destination, for example: "Eiffel Tower" or "MTR Restaurant".
 - The estimated price for each suggestion MUST be in the requested currency: {{{currency}}} and fall within the user's budget range.
 - For each destination object in the output array, you MUST include a "currency" field with the value "{{{currency}}}" and a "rating" field from the tool.
 - Format the output as a valid JSON array of objects matching the output schema.
