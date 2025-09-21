@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { getDestinations } from "@/lib/actions";
 import { useToast } from "@/hooks/use-toast";
-import type { SuggestDestinationsOutput } from "@/lib/types";
+import type { GenerateItineraryInput } from "@/lib/types";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -33,7 +33,10 @@ const formSchema = z.object({
 });
 
 type TripPlannerProps = {
-  onPlannerSubmit: (results: SuggestDestinationsOutput) => void;
+  onPlannerSubmit: (
+    plannerInput: Omit<GenerateItineraryInput, "destinations">,
+    destination: string
+  ) => void;
 };
 
 export function TripPlanner({ onPlannerSubmit }: TripPlannerProps) {
@@ -57,6 +60,8 @@ export function TripPlanner({ onPlannerSubmit }: TripPlannerProps) {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     try {
+      // The getDestinations action suggests multiple places.
+      // In this streamlined flow, we'll take the top suggestion and proceed.
       const results = await getDestinations({
         destinations: values.destinations,
         budgetMin: values.budget[0],
@@ -65,7 +70,28 @@ export function TripPlanner({ onPlannerSubmit }: TripPlannerProps) {
         interests: values.interests.split(",").map((i) => i.trim()),
         currency: values.currency,
       });
-      onPlannerSubmit(results);
+
+      if (!results || results.length === 0) {
+        toast({
+          variant: "destructive",
+          title: "No Suggestions Found",
+          description: "The AI could not find any destinations for your query. Please try different criteria.",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      const topDestination = results[0];
+      
+      const plannerInput: Omit<GenerateItineraryInput, "destinations"> = {
+        budget: values.budget[1], // Use max budget for the itinerary plan
+        timeline: `${values.duration} days`,
+        interests: values.interests,
+        currency: values.currency,
+      };
+
+      onPlannerSubmit(plannerInput, topDestination.destination);
+
     } catch (error) {
       toast({
         variant: "destructive",
@@ -81,10 +107,10 @@ export function TripPlanner({ onPlannerSubmit }: TripPlannerProps) {
       <Card className="w-full max-w-2xl p-6 md:p-8 text-center">
         <Loader2 className="mx-auto h-12 w-12 animate-spin text-primary mb-4" />
         <h2 className="font-headline text-2xl font-semibold">
-          Searching for destinations...
+          Building your itinerary...
         </h2>
         <p className="text-muted-foreground mt-2">
-          Our AI is curating a list of popular places just for you.
+          Our AI is planning your trip. This may take a moment.
         </p>
       </Card>
     );
@@ -199,10 +225,10 @@ export function TripPlanner({ onPlannerSubmit }: TripPlannerProps) {
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Searching...
+                  Generating Itinerary...
                 </>
               ) : (
-                "Find Destinations"
+                "✨ Generate Itinerary"
               )}
             </Button>
           </form>

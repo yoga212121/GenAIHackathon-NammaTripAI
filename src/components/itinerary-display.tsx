@@ -124,6 +124,7 @@ export default function ItineraryDisplay({
     return (
       <Card className="w-full max-w-lg p-8 text-center">
         <CardTitle className="font-headline">Could Not Generate Itinerary</CardTitle>
+        <CardDescription>The AI failed to create an itinerary. Please try again with different criteria.</CardDescription>
         <Button onClick={onBack} className="mt-6">
           <ArrowLeft className="mr-2 h-4 w-4" /> Go Back
         </Button>
@@ -229,7 +230,7 @@ export default function ItineraryDisplay({
             </div>
         </div>
         <Button variant="outline" onClick={onBack}>
-          <ArrowLeft className="mr-2 h-4 w-4" /> Back to Suggestions
+          <ArrowLeft className="mr-2 h-4 w-4" /> Start Over
         </Button>
       </CardFooter>
     </Card>

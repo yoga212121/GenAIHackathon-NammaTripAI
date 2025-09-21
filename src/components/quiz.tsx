@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import Image from "next/image";
 import { runQuiz } from "@/lib/actions";
 import { useToast } from "@/hooks/use-toast";
@@ -171,10 +171,10 @@ export function Quiz({ onQuizComplete }: QuizProps) {
       <Card className="w-full max-w-2xl p-6 md:p-8 text-center">
         <Loader2 className="mx-auto h-12 w-12 animate-spin text-primary mb-4" />
         <h2 className="font-headline text-2xl font-semibold">
-          Finding your perfect destination...
+          Building your itinerary...
         </h2>
         <p className="text-muted-foreground mt-2">
-          Our AI is analyzing your preferences. This won't take long!
+          Our AI is analyzing your preferences and planning your trip.
         </p>
       </Card>
     );

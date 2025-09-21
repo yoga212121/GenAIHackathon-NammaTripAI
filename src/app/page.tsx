@@ -12,75 +12,46 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Header } from "@/components/header";
 import { Quiz } from "@/components/quiz";
 import { TripPlanner } from "@/components/trip-planner";
-import { DestinationSuggestions } from "@/components/destination-suggestions";
 import ItineraryDisplay from "@/components/itinerary-display";
-import { RefineTrip } from "@/components/refine-trip";
 
-type View =
-  | "start"
-  | "quiz"
-  | "planner"
-  | "results"
-  | "refine-trip"
-  | "itinerary";
+type View = "start" | "itinerary";
 
 export default function Home() {
   const [view, setView] = useState<View>("start");
-  const [quizResult, setQuizResult] =
-    useState<PersonalizedDestinationQuizOutput | null>(null);
-  const [plannerResults, setPlannerResults] =
-    useState<SuggestDestinationsOutput | null>(null);
-  const [selectedDestination, setSelectedDestination] = useState<string | null>(
-    null
-  );
-  const [initialInterests, setInitialInterests] = useState<string>("as per suggestion");
   const [itineraryParams, setItineraryParams] =
     useState<GenerateItineraryInput | null>(null);
 
   const handleQuizComplete = (result: PersonalizedDestinationQuizOutput) => {
-    setQuizResult(result);
-    setPlannerResults(null);
-    setView("results");
-  };
-
-  const handlePlannerSubmit = (results: SuggestDestinationsOutput) => {
-    setPlannerResults(results);
-    setQuizResult(null);
-    setView("results");
-  };
-
-  const handleSelectDestination = (
-    destination: string,
-    plannerInput: Omit<GenerateItineraryInput, "destinations">
-  ) => {
-    setSelectedDestination(destination);
-    setInitialInterests(plannerInput.interests);
-    setView("refine-trip");
-  };
-
-  const handleRefineTrip = (details: {
-    budget: number;
-    duration: number;
-    currency: string;
-  }) => {
-    if (!selectedDestination) return;
+    if (!result || result.length === 0) {
+      handleReset(); // Or show an error
+      return;
+    }
+    const topSuggestion = result[0];
     const params: GenerateItineraryInput = {
-      destinations: selectedDestination,
-      budget: details.budget,
-      timeline: `${details.duration} days`,
-      interests: initialInterests,
-      currency: details.currency,
+      destinations: topSuggestion.destination,
+      budget: 1500, // Using a default budget for quiz-based generation
+      timeline: "a few days", // Using a default timeline
+      interests: "as per suggestion",
+      currency: "USD",
     };
     setItineraryParams(params);
     setView("itinerary");
   };
 
+  const handlePlannerSubmit = (
+    plannerInput: Omit<GenerateItineraryInput, "destinations">,
+    destination: string
+  ) => {
+    const params: GenerateItineraryInput = {
+      destinations: destination,
+      ...plannerInput,
+    };
+    setItineraryParams(params);
+    setView("itinerary");
+  };
 
   const handleReset = () => {
     setView("start");
-    setQuizResult(null);
-    setPlannerResults(null);
-    setSelectedDestination(null);
     setItineraryParams(null);
   };
 
@@ -96,23 +67,6 @@ export default function Home() {
           );
         }
         return null;
-      case "refine-trip":
-        return (
-          <RefineTrip
-            destination={selectedDestination!}
-            onSubmit={handleRefineTrip}
-            onBack={() => setView("results")}
-          />
-        );
-      case "results":
-        return (
-          <DestinationSuggestions
-            quizResult={quizResult}
-            plannerResults={plannerResults}
-            onPlanTrip={handleSelectDestination}
-            onBack={handleReset}
-          />
-        );
       case "start":
       default:
         return (
