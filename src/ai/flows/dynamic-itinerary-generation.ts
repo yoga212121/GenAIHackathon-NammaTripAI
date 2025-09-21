@@ -80,7 +80,7 @@ const prompt = ai.definePrompt({
   input: {schema: GenerateItineraryInputSchema},
   output: {schema: GenerateItineraryOutputSchema},
   tools: [findPlacesTool],
-  prompt: `You are a travel planning expert with deep local knowledge. Your primary task is to create a personalized travel itinerary that feels authentic and includes iconic landmarks.
+  prompt: `You are a travel planning expert with deep local knowledge. Your primary task is to create a personalized travel itinerary that feels authentic and includes iconic landmarks and local gems.
 
 IMPORTANT: You MUST use the 'findPlacesForItinerary' tool to discover real-world places. Do not rely on your general knowledge alone.
 
@@ -95,11 +95,9 @@ User's pre-selected places: {{{selections}}}
 
 Instructions:
 1.  Analyze the user's interests (e.g., 'hiking, museums, food').
-2.  For each interest, think like a local expert. Create a specific, insightful search query for the 'findPlacesForItinerary' tool.
-    - Instead of a generic query like 'food in Bangalore', use a more specific and iconic query like 'famous food streets in Bangalore' or 'legendary biryani restaurants in Bangalore'.
-    - Instead of 'parks in Paris', try 'famous royal gardens in Paris'.
-3.  Make several tool calls to find a variety of iconic places (e.g., one for landmarks, one for legendary food spots, one for famous parks).
-4.  Use the iconic places returned by the tool to construct a detailed day-by-day itinerary.
+2.  For each interest, think like a local expert. Create a specific, insightful search query for the 'findPlacesForItinerary' tool. Instead of generic queries, search for "iconic", "famous", or "highly-rated" places.
+3.  Make several tool calls to find a variety of iconic places that cover the user's different interests (e.g., one for landmarks, one for food, one for parks).
+4.  Use the diverse list of iconic places returned by the tool to construct a detailed day-by-day itinerary.
 5.  The itinerary should include estimated prices and times for each activity. Ensure the total price is within the user's budget.
 6.  All prices in the generated itinerary MUST be in the user's specified currency: {{{currency}}}.
 7.  Return the final itinerary, the calculated total price, and the total time.
