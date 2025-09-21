@@ -1,0 +1,70 @@
+"use server";
+
+import {
+  personalizedDestinationQuiz,
+  type PersonalizedDestinationQuizInput,
+  type PersonalizedDestinationQuizOutput,
+} from "@/ai/flows/personalized-destination-quiz";
+import {
+  suggestDestinationsBasedOnPreferences,
+  type SuggestDestinationsInput,
+  type SuggestDestinationsOutput,
+} from "@/ai/flows/suggest-destinations-based-on-preferences";
+import {
+  generateItinerary,
+  type GenerateItineraryInput,
+  type GenerateItineraryOutput,
+} from "@/ai/flows/dynamic-itinerary-generation";
+import {
+  adjustItineraryForBudget,
+  type AdjustItineraryForBudgetInput,
+  type AdjustItineraryForBudgetOutput,
+} from "@/ai/flows/budget-aware-itinerary-adjustments";
+
+export async function runQuiz(
+  input: PersonalizedDestinationQuizInput
+): Promise<PersonalizedDestinationQuizOutput> {
+  try {
+    const result = await personalizedDestinationQuiz(input);
+    return result;
+  } catch (error) {
+    console.error("Error in runQuiz:", error);
+    throw new Error("Failed to get quiz results from AI.");
+  }
+}
+
+export async function getDestinations(
+  input: SuggestDestinationsInput
+): Promise<SuggestDestinationsOutput> {
+  try {
+    const result = await suggestDestinationsBasedOnPreferences(input);
+    return result;
+  } catch (error) {
+    console.error("Error in getDestinations:", error);
+    throw new Error("Failed to get destination suggestions from AI.");
+  }
+}
+
+export async function getItinerary(
+  input: GenerateItineraryInput
+): Promise<GenerateItineraryOutput> {
+  try {
+    const result = await generateItinerary(input);
+    return result;
+  } catch (error) {
+    console.error("Error in getItinerary:", error);
+    throw new Error("Failed to generate itinerary from AI.");
+  }
+}
+
+export async function getAdjustedItinerary(
+  input: AdjustItineraryForBudgetInput
+): Promise<AdjustItineraryForBudgetOutput> {
+  try {
+    const result = await adjustItineraryForBudget(input);
+    return result;
+  } catch (error) {
+    console.error("Error in getAdjustedItinerary:", error);
+    throw new Error("Failed to adjust itinerary from AI.");
+  }
+}
